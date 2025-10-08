@@ -49,10 +49,10 @@ Error generating stack: `+e.message+`
   }
 
   .buttons {
-    width: 68%;
+    width: 58%;
     height: 100%;
     display: flex;
-    gap: 2px;
+    gap: 2%;
     border: solid 1px #3b3b3b;
     box-shadow: inset 0 0 10px #0000004e;
     padding: 10px;
@@ -78,7 +78,7 @@ Error generating stack: `+e.message+`
   }
 
   .controles {
-    width: 30%;
+    width: 40%;
     height: 100%;
     border: solid 1px #3b3b3b;
     margin-left: 10px;
@@ -114,12 +114,14 @@ Error generating stack: `+e.message+`
 
   .relacaoprodutos {
     width: 100%;
-    height: 40px;
+    height: 60px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     border-bottom: solid 1px #3b3b3b;
-    margin-bottom: 5px;    
+    margin-bottom: 5px;
+    border-bottom: solid 1px #3b3b3b;
   }
 
   .quantidade {
@@ -160,13 +162,14 @@ Error generating stack: `+e.message+`
   color: ${e=>e.$corTexto};
   font-weight: bold;
   text-align: center;
-  width: 16.4%;
+  width: 24.7%;
   aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
+  border: solid 2px #3a3a3a;
 
   &:hover {
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
@@ -184,4 +187,4 @@ Error generating stack: `+e.message+`
   p {
     color: ${e=>e.$corTexto};
   }
-`;var Bn=o((e=>{var t=Symbol.for(`react.transitional.element`);function n(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.jsx=n,e.jsxs=n})),M=c(o(((e,t)=>{t.exports=Bn()}))());function Vn(e){let[t,n]=(0,_.useState)(!1),[r,i]=(0,_.useState)(`#00ff94`);return(0,_.useEffect)(()=>{e.$produtosSelecionados.filter(t=>(t.categoria===e.$texto&&t.tipo===e.$tipo?i(`#00ff94`):(n(!1),i(`#b4b4b4`)),null))},[e.$texto,e.$tipo]),(0,M.jsxs)(zn,{$background:t?r:`#b4b4b4`,$corTexto:e.$corTexto,onClick:()=>{e.$btnClick(),n(!0)},...e,children:[(0,M.jsx)(`div`,{className:`numbutton`,children:e.$index}),(0,M.jsxs)(`p`,{children:[e.$texto,` `,e.$tipo.toUpperCase()]})]})}var Hn=[{categoria:`Cópia`,tipo:`pb`,valor:.5},{categoria:`Cópia`,tipo:`cl`,valor:2},{categoria:`Impressão`,tipo:`a4pb`,valor:2},{categoria:`Impressão`,tipo:`a4cl`,valor:5},{categoria:`Impressão`,tipo:`a3pb`,valor:4},{categoria:`Impressão`,tipo:`a3cl`,valor:9},{categoria:`Revelação`,tipo:`3x4`,valor:10},{categoria:`Revelação`,tipo:`10x15`,valor:3.5},{categoria:`Revelação`,tipo:`15x20`,valor:7},{categoria:`Scan`,tipo:`a4`,valor:1.5},{categoria:`Scan`,tipo:`a3`,valor:3}];function Un(){let[e,t]=(0,_.useState)([]),[n,r]=(0,_.useState)(0),[i]=(0,_.useState)(`#242424`),a=n=>{let r=`${n.categoria}_${n.tipo}`;if(e.find(e=>`${e.categoria}_${e.tipo}`===r))t(e=>e.map(e=>`${e.categoria}_${e.tipo}`===r?{...e,quantidade:e.quantidade+1}:e));else{let e={...n,idUnico:Date.now()+Math.random(),quantidade:1};t(t=>[...t,e])}},o=e=>{t(t=>t.filter(t=>t.idUnico!==e))},s=(e,n)=>{let r=Math.max(1,parseFloat(n)||1);t(t=>t.map(t=>t.idUnico===e?{...t,quantidade:r}:t))},c=e.reduce((e,t)=>{let n=t.valor||t.preco||0;return e+n*t.quantidade},0),l=n>c?n-c:0;return(0,M.jsxs)(Rn,{children:[(0,M.jsx)(`header`,{children:(0,M.jsx)(`div`,{className:`logomenu`,children:(0,M.jsx)(`a`,{href:`#`,children:`FastCash`})})}),(0,M.jsx)(`main`,{children:(0,M.jsxs)(`div`,{className:`container`,children:[(0,M.jsx)(`div`,{className:`buttons`,children:(0,M.jsx)(`div`,{className:`buttons2`,children:(()=>Hn.map((t,n)=>(0,M.jsx)(Vn,{$index:n+1,$texto:t.categoria,$tipo:t.tipo,$corTexto:i,$btnClick:()=>a(t),$produtosSelecionados:e},n)))()})}),(0,M.jsxs)(`div`,{className:`controles`,children:[(0,M.jsx)(`h1`,{children:`Selecionados:`}),(0,M.jsx)(`div`,{className:`prods`,children:e.map((e,t)=>{let n=e.valor||e.preco||0,r=n*e.quantidade;return(0,M.jsxs)(`div`,{className:`relacaoprodutos`,children:[(0,M.jsx)(`button`,{onClick:()=>o(e.idUnico),className:`relacaoprodutos`,style:{background:`red`,color:`white`,border:`none`,borderRadius:`3px`,cursor:`pointer`,marginRight:`10px`,fontWeight:`bold`,width:`20px`,height:`20px`,display:`inline-flex`,alignItems:`center`,justifyContent:`center`,padding:`0`},children:`X`}),e.categoria,` `,e.tipo.toUpperCase(),` R$`,` `,n.toFixed(2).replace(`.`,`,`),` x`,` `,(0,M.jsx)(`input`,{value:e.quantidade,type:`number`,min:`1`,onChange:t=>s(e.idUnico,t.target.value),className:`quantidade`}),`: R$ `,r.toFixed(2).replace(`.`,`,`)]},e.idUnico)})}),e.length>0&&(0,M.jsxs)(`div`,{className:`pagamento`,children:[(0,M.jsx)(`label`,{children:`Valor Recebido:`}),(0,M.jsx)(`input`,{type:`number`,value:n||``,onChange:e=>r(parseFloat(e.target.value)||0),style:{padding:`8px`,width:`100%`,marginBottom:`10px`},className:`valorrecebido`}),(0,M.jsxs)(`div`,{style:{fontWeight:`bold`},children:[`Total Geral: R$ `,c.toFixed(2).replace(`.`,`,`),` `,(0,M.jsx)(`br`,{}),`Troco: R$ `,l.toFixed(2).replace(`.`,`,`)]})]})]})]})}),(0,M.jsx)(`footer`,{children:(0,M.jsx)(`div`,{className:`footer`,children:(0,M.jsx)(`p`,{children:`Desenvolvido por Everson Silva`})})})]})}var Wn=Un;(0,g.createRoot)(document.getElementById(`root`)).render((0,M.jsx)(_.StrictMode,{children:(0,M.jsx)(Wn,{})}));
+`;var Bn=o((e=>{var t=Symbol.for(`react.transitional.element`);function n(e,n,r){var i=null;if(r!==void 0&&(i=``+r),n.key!==void 0&&(i=``+n.key),`key`in n)for(var a in r={},n)a!==`key`&&(r[a]=n[a]);else r=n;return n=r.ref,{$$typeof:t,type:e,key:i,ref:n===void 0?null:n,props:r}}e.jsx=n,e.jsxs=n})),M=c(o(((e,t)=>{t.exports=Bn()}))());function Vn(e){let[t,n]=(0,_.useState)(`#262626`),[r,i]=(0,_.useState)(t);return(0,_.useEffect)(()=>{e.$texto==`Impressão`?n(`#0901f3`):e.$texto==`Cópia`?n(`#b83f02`):e.$texto==`Revelação`?n(`#00700f`):e.$texto&&n(`#30005e`)},[e.$texto]),(0,_.useEffect)(()=>{let n=e.$produtosSelecionados.some(t=>t.categoria===e.$texto&&t.tipo===e.$tipo);i(n?`#7d0000`:t)},[e.$produtosSelecionados,e.$texto,e.$tipo,t]),(0,M.jsxs)(zn,{$background:r,$corTexto:e.$corTexto,onClick:e.$btnClick,children:[(0,M.jsx)(`div`,{className:`numbutton`,children:e.$index}),(0,M.jsxs)(`p`,{children:[e.$texto,` `,e.$tipo.toUpperCase()]})]})}var Hn=[{categoria:`Cópia`,tipo:`pb`,valor:.5},{categoria:`Cópia`,tipo:`cl`,valor:2},{categoria:`Impressão`,tipo:`a4pb`,valor:2},{categoria:`Impressão`,tipo:`a4cl`,valor:5},{categoria:`Impressão`,tipo:`a3pb`,valor:4},{categoria:`Impressão`,tipo:`a3cl`,valor:9},{categoria:`Revelação`,tipo:`3x4`,valor:10},{categoria:`Revelação`,tipo:`10x15`,valor:3.5},{categoria:`Revelação`,tipo:`15x20`,valor:7},{categoria:`Scan`,tipo:`a4`,valor:1.5},{categoria:`Scan`,tipo:`a3`,valor:3},{categoria:`Cópia`,tipo:`pb`,valor:.5},{categoria:`Cópia`,tipo:`cl`,valor:2},{categoria:`Impressão`,tipo:`a4pb`,valor:2},{categoria:`Impressão`,tipo:`a4cl`,valor:5},{categoria:`Impressão`,tipo:`a3pb`,valor:4},{categoria:`Impressão`,tipo:`a3cl`,valor:9},{categoria:`Revelação`,tipo:`3x4`,valor:10},{categoria:`Revelação`,tipo:`10x15`,valor:3.5},{categoria:`Revelação`,tipo:`15x20`,valor:7},{categoria:`Scan`,tipo:`a4`,valor:1.5},{categoria:`Scan`,tipo:`a3`,valor:3}];function Un(){let[e,t]=(0,_.useState)([]),[n,r]=(0,_.useState)(0),[i]=(0,_.useState)(`#cecece`),a=n=>{let r=`${n.categoria}_${n.tipo}`;if(e.find(e=>`${e.categoria}_${e.tipo}`===r))t(e=>e.map(e=>`${e.categoria}_${e.tipo}`===r?{...e,quantidade:e.quantidade+1}:e));else{let e={...n,idUnico:Date.now()+Math.random(),quantidade:1};t(t=>[...t,e])}},o=e=>{t(t=>t.filter(t=>t.idUnico!==e))},s=(e,n)=>{let r=Math.max(1,parseFloat(n)||1);t(t=>t.map(t=>t.idUnico===e?{...t,quantidade:r}:t))},c=e.reduce((e,t)=>{let n=t.valor||t.preco||0;return e+n*t.quantidade},0),l=n>c?n-c:0;return(0,M.jsxs)(Rn,{children:[(0,M.jsx)(`header`,{children:(0,M.jsx)(`div`,{className:`logomenu`,children:(0,M.jsx)(`a`,{href:`#`,children:`FastCash`})})}),(0,M.jsx)(`main`,{children:(0,M.jsxs)(`div`,{className:`container`,children:[(0,M.jsx)(`div`,{className:`buttons`,children:(0,M.jsx)(`div`,{className:`buttons2`,children:(()=>Hn.map((t,n)=>(0,M.jsx)(Vn,{$index:n+1,$texto:t.categoria,$tipo:t.tipo,$corTexto:i,$btnClick:()=>a(t),$produtosSelecionados:e},n)))()})}),(0,M.jsxs)(`div`,{className:`controles`,children:[(0,M.jsx)(`h1`,{children:`Selecionados:`}),(0,M.jsx)(`div`,{className:`prods`,children:e.map((e,t)=>{let n=e.valor||e.preco||0,r=n*e.quantidade;return(0,M.jsxs)(`div`,{className:`relacaoprodutos`,children:[(0,M.jsx)(`button`,{onClick:()=>o(e.idUnico),className:`relacaoprodutos`,style:{background:`red`,color:`white`,border:`none`,borderRadius:`3px`,cursor:`pointer`,marginRight:`10px`,fontWeight:`bold`,width:`20px`,height:`20px`,display:`inline-flex`,alignItems:`center`,justifyContent:`center`,padding:`0`},children:`X`}),e.categoria,` `,e.tipo.toUpperCase(),` R$`,` `,n.toFixed(2).replace(`.`,`,`),` x`,` `,(0,M.jsx)(`input`,{value:e.quantidade,type:`number`,min:`1`,onChange:t=>s(e.idUnico,t.target.value),className:`quantidade`}),`: R$ `,r.toFixed(2).replace(`.`,`,`)]},e.idUnico)})}),e.length>0&&(0,M.jsxs)(`div`,{className:`pagamento`,children:[(0,M.jsx)(`label`,{children:`Valor Recebido:`}),(0,M.jsx)(`input`,{type:`number`,value:n||``,onChange:e=>r(parseFloat(e.target.value)||0),style:{padding:`8px`,width:`100%`,marginBottom:`10px`},className:`valorrecebido`}),(0,M.jsxs)(`div`,{style:{fontWeight:`bold`},children:[`Total Geral: R$ `,c.toFixed(2).replace(`.`,`,`),` `,(0,M.jsx)(`br`,{}),`Troco: R$ `,l.toFixed(2).replace(`.`,`,`)]})]})]})]})}),(0,M.jsx)(`footer`,{children:(0,M.jsx)(`div`,{className:`footer`,children:(0,M.jsx)(`p`,{children:`Desenvolvido por Everson Silva 2025`})})})]})}var Wn=Un;(0,g.createRoot)(document.getElementById(`root`)).render((0,M.jsx)(_.StrictMode,{children:(0,M.jsx)(Wn,{})}));
