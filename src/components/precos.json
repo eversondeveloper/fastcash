@@ -9,5 +9,16 @@
   { "categoria": "Revelação", "tipo": "10x15", "valor": 3.5 },
   { "categoria": "Revelação", "tipo": "15x20", "valor": 7 },
   { "categoria": "Scan", "tipo": "a4", "valor": 1.5 },
+  { "categoria": "Scan", "tipo": "a3", "valor": 3 },
+  { "categoria": "Cópia", "tipo": "pb", "valor": 0.5 },
+  { "categoria": "Cópia", "tipo": "cl", "valor": 2 },
+  { "categoria": "Impressão", "tipo": "a4pb", "valor": 2 },
+  { "categoria": "Impressão", "tipo": "a4cl", "valor": 5 },
+  { "categoria": "Impressão", "tipo": "a3pb", "valor": 4 },
+  { "categoria": "Impressão", "tipo": "a3cl", "valor": 9 },
+  { "categoria": "Revelação", "tipo": "3x4", "valor": 10 },
+  { "categoria": "Revelação", "tipo": "10x15", "valor": 3.5 },
+  { "categoria": "Revelação", "tipo": "15x20", "valor": 7 },
+  { "categoria": "Scan", "tipo": "a4", "valor": 1.5 },
   { "categoria": "Scan", "tipo": "a3", "valor": 3 }
 ]
