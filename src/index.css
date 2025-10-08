@@ -3,11 +3,11 @@
   margin: 0;
   padding: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  color: rgb(223, 223, 223);
+  color: #BACBD9;
 }
 
 body {
-  background-color: #242424;
+  background-color: #1e1e1e;
   color: #333;
   display: flex;
   justify-content: center;

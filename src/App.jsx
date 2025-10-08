@@ -7,7 +7,7 @@ function App() {
   const [produtosSelecionados, setProdutosSelecionados] = useState([]);
   const [valorPago, setValorPago] = useState(0);
 
-  const [corTextoBtn] = useState("#242424");
+  const [corTextoBtn] = useState("#cecece");
 
   const adicionarProduto = (item) => {
     const itemChave = `${item.categoria}_${item.tipo}`;
@@ -162,7 +162,7 @@ function App() {
       </main>
       <footer>
         <div className="footer">
-          <p>Desenvolvido por Everson Silva</p>
+          <p>Desenvolvido por Everson Silva 2025</p>
         </div>
       </footer>
     </AppStyled>

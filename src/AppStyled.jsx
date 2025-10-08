@@ -42,10 +42,10 @@ export const AppStyled = styled.div`
   }
 
   .buttons {
-    width: 68%;
+    width: 58%;
     height: 100%;
     display: flex;
-    gap: 2px;
+    gap: 2%;
     border: solid 1px #3b3b3b;
     box-shadow: inset 0 0 10px #0000004e;
     padding: 10px;
@@ -71,7 +71,7 @@ export const AppStyled = styled.div`
   }
 
   .controles {
-    width: 30%;
+    width: 40%;
     height: 100%;
     border: solid 1px #3b3b3b;
     margin-left: 10px;
@@ -107,12 +107,14 @@ export const AppStyled = styled.div`
 
   .relacaoprodutos {
     width: 100%;
-    height: 40px;
+    height: 60px;
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     border-bottom: solid 1px #3b3b3b;
-    margin-bottom: 5px;    
+    margin-bottom: 5px;
+    border-bottom: solid 1px #3b3b3b;
   }
 
   .quantidade {

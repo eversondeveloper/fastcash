@@ -9,13 +9,14 @@ export const ButtonStyled = styled.div`
   color: ${(props) => props.$corTexto};
   font-weight: bold;
   text-align: center;
-  width: 16.4%;
+  width: 24.7%;
   aspect-ratio: 1 / 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
+  border: solid 2px #3a3a3a;
 
   &:hover {
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
