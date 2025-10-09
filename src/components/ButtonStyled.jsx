@@ -1,6 +1,8 @@
 import styled from "styled-components";
 
 export const ButtonStyled = styled.div`
+  background-image: url(${(props) => props.$backgroundImage});
+  background-size: cover;
   padding: 10px 20px;
   box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.2);
   border-radius: 10px;
@@ -16,7 +18,6 @@ export const ButtonStyled = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
-  border: solid 2px #3a3a3a;
 
   &:hover {
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
@@ -31,7 +32,7 @@ export const ButtonStyled = styled.div`
     left: 10px;
   }
 
-  p {
+  .textobotao {
     color: ${(props) => props.$corTexto};
   }
 `;

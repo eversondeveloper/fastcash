@@ -7,7 +7,7 @@ function App() {
   const [produtosSelecionados, setProdutosSelecionados] = useState([]);
   const [valorPago, setValorPago] = useState(0);
 
-  const [corTextoBtn] = useState("#cecece");
+  const [corTextoBtn] = useState("#e4e4e4ff");
 
   const adicionarProduto = (item) => {
     const itemChave = `${item.categoria}_${item.tipo}`;
