@@ -16,7 +16,7 @@ export const ButtonStyled = styled.div`
   align-items: center;
   justify-content: center;
   position: relative;
-  border: solid 2px #3a3a3a;
+  user-select: none;
 
   &:hover {
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
