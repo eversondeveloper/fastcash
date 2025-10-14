@@ -282,7 +282,7 @@ function ComponenteVendas() {
           $corTexto={corTextoBtn}
           $btnClick={() => (adicionarProduto(item), click())}
           $produtosSelecionados={produtosSelecionados}
-          $btnHover={()=> hoverSom()}
+          // $btnHover={()=> hoverSom()}
         />
       ))
     );
