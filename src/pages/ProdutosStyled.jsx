@@ -67,8 +67,25 @@ export const TabelaProdutos = styled.table`
         text-transform: uppercase;
     }
 
-    tr:nth-child(even) {
+    tbody tr:nth-child(even) {
         background-color: #1e1e1e;
+    }
+    
+    /* ESTILOS PARA DRAG & DROP */
+    tbody tr {
+        cursor: grab;
+        transition: background-color 0.2s;
+    }
+
+    /* Feedback visual ao arrastar sobre */
+    tbody tr.arrastando-sobre {
+        border-bottom: 2px solid #646cff; 
+        background-color: #383838 !important;
+    }
+    
+    /* Garante que o hover padrão volte ao normal */
+    tbody tr:hover {
+        background-color: #333;
     }
 
     .coluna-acoes {

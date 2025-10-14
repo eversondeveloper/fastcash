@@ -20,7 +20,9 @@ export const Produtos = () => {
     const [erro, setErro] = useState(null);
     const [produtoEditando, setProdutoEditando] = useState(null); 
     const [dadosFormulario, setDadosFormulario] = useState({});
-    const [exibirFormulario, setExibirFormulario] = useState(false); // NOVO ESTADO
+    const [exibirFormulario, setExibirFormulario] = useState(false);
+    
+    const [arrastandoId, setArrastandoId] = useState(null); 
 
     const resetarFormulario = () => {
         setProdutoEditando(null);
@@ -33,7 +35,7 @@ export const Produtos = () => {
             estoqueAtual: 0,
             codigoBarra: ''
         });
-        setExibirFormulario(false); // Esconde o formulário
+        setExibirFormulario(false);
     };
 
     const iniciarNovoCadastro = () => {
@@ -47,7 +49,7 @@ export const Produtos = () => {
             estoqueAtual: 0,
             codigoBarra: ''
         });
-        setExibirFormulario(true); // Exibe o formulário
+        setExibirFormulario(true);
     }
 
     const buscarProdutos = async () => {
@@ -125,7 +127,7 @@ export const Produtos = () => {
             estoqueAtual: produto.estoque_atual,
             codigoBarra: produto.codigo_barra
         });
-        setExibirFormulario(true); // Exibe o formulário para edição
+        setExibirFormulario(true);
     };
 
     const manipularMudanca = (evento) => {
@@ -147,12 +149,50 @@ export const Produtos = () => {
         );
     }, [produtos, filtroBusca]);
 
+    
+    const handleDragStart = (e, id) => {
+        setArrastandoId(id);
+        e.dataTransfer.setData("text/plain", id); 
+    };
+
+    const handleDragOver = (e) => {
+        e.preventDefault(); 
+        if (arrastandoId) {
+            e.currentTarget.classList.add('arrastando-sobre');
+        }
+    };
+
+    const handleDragLeave = (e) => {
+        e.currentTarget.classList.remove('arrastando-sobre');
+    }
+
+    const handleDrop = (e, targetId) => {
+        e.preventDefault();
+        e.currentTarget.classList.remove('arrastando-sobre');
+        
+        const sourceId = arrastandoId; 
+        
+        if (sourceId === targetId) return;
+
+        const produtosCopy = [...produtos];
+        const arrastadoIndex = produtosCopy.findIndex(p => p.id_produto === sourceId);
+        const alvoIndex = produtosCopy.findIndex(p => p.id_produto === targetId);
+
+        if (arrastadoIndex === -1 || alvoIndex === -1) return;
+
+        const [produtoArrastado] = produtosCopy.splice(arrastadoIndex, 1);
+        produtosCopy.splice(alvoIndex, 0, produtoArrastado);
+
+        setProdutos(produtosCopy);
+        setArrastandoId(null);
+    };
+
+
     return (
         <ProdutosStyled>
             <h1>Gestão de Produtos e Serviços</h1>
 
             <ContainerNovoProduto>
-                {/* ALTERAÇÃO AQUI: Chama iniciarNovoCadastro */}
                 <BotaoAcao onClick={iniciarNovoCadastro} $tipo="adicionar">
                     + NOVO PRODUTO
                 </BotaoAcao>
@@ -167,7 +207,7 @@ export const Produtos = () => {
                 />
             </SecaoBusca>
 
-            {/* ALTERAÇÃO AQUI: Condição para exibir o formulário */}
+            
             {(produtoEditando || exibirFormulario) && (
                 <FormularioEdicao onSubmit={salvarProduto}>
                     <h2>{produtoEditando ? `Editando Produto ID: ${produtoEditando.id_produto}` : 'Cadastrar Novo Produto'}</h2>
@@ -272,6 +312,7 @@ export const Produtos = () => {
                 <TabelaProdutos>
                     <thead>
                         <tr>
+                            <th style={{ width: '30px' }}>#</th>
                             <th>ID</th>
                             <th>Descrição</th>
                             <th>Categoria</th>
@@ -283,7 +324,16 @@ export const Produtos = () => {
                     </thead>
                     <tbody>
                         {produtosFiltrados.map((produto) => (
-                            <tr key={produto.id_produto}>
+                            <tr 
+                                key={produto.id_produto}
+                                draggable
+                                onDragStart={(e) => handleDragStart(e, produto.id_produto)}
+                                onDragOver={handleDragOver}
+                                onDragLeave={handleDragLeave}
+                                onDrop={(e) => handleDrop(e, produto.id_produto)}
+                                style={{ opacity: arrastandoId === produto.id_produto ? 0.5 : 1, cursor: 'grab' }}
+                            >
+                                <td>{produtos.findIndex(p => p.id_produto === produto.id_produto) + 1}</td>
                                 <td>{produto.id_produto}</td>
                                 <td>{produto.descricao}</td>
                                 <td>{produto.categoria}</td>

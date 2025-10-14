@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { AppStyled } from "./AppStyled";
 import Button from "./components/Button";
 import desClick from "/sounds/desselecionar.mp3";
+import clickSound from "/sounds/selecionar.mp3";
+import somHover from "/sounds/hover.mp3"
 import { Routes, Route, Link } from "react-router-dom";
 import { PaginaRelatorios } from "./pages/PaginaRelatorios";
 import { Produtos } from "./pages/Produtos";
@@ -23,8 +25,21 @@ function ComponenteVendas() {
   const [metodoSecundario, setMetodoSecundario] = useState("Crédito");
   const [carregandoProdutos, setCarregandoProdutos] = useState(true);
   const [corTextoBtn] = useState("#cecece");
-  // NOVO STATE: Para controlar a mensagem flutuante
   const [mensagemFlutuante, setMensagemFlutuante] = useState("");
+
+  const click = () => {
+    const clickSom = new Audio(clickSound);
+    clickSom.currentTime = 0;
+    clickSom.volume = 1.0;
+    clickSom.play();
+  };
+
+  const hoverSom = () => {
+    const somSobre = new Audio(somHover)
+    somSobre.currentTime = 0;
+    somSobre.volume = 1.0;
+    somSobre.play()
+  }
 
   useEffect(() => {
     const buscarProdutos = async () => {
@@ -42,13 +57,12 @@ function ComponenteVendas() {
     buscarProdutos();
   }, []);
 
-  // NOVO EFFECT: Para limpar a mensagem após 3 segundos
   useEffect(() => {
     if (mensagemFlutuante) {
       const timer = setTimeout(() => {
         setMensagemFlutuante("");
       }, 3000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [mensagemFlutuante]);
@@ -140,19 +154,19 @@ function ComponenteVendas() {
 
   const podeFinalizarVenda = () => {
     if (produtosSelecionados.length === 0) return false;
-    
+
     if (["Crédito", "Débito", "PIX"].includes(metodoPagamento)) {
       return true;
     }
-    
+
     if (metodoPagamento === "Dinheiro") {
       return valorDinheiroRecebido >= totalGeral;
     }
-    
+
     if (metodoPagamento === "Misto") {
       return valorPagoTotal >= totalGeral;
     }
-    
+
     return false;
   };
 
@@ -184,10 +198,12 @@ function ComponenteVendas() {
   const finalizarVenda = async () => {
     if (!podeFinalizarVenda()) {
       // ALTERADO: Mensagem de erro também como flutuante
-      setMensagemFlutuante("Não é possível finalizar a venda. Verifique os valores informados.");
+      setMensagemFlutuante(
+        "Não é possível finalizar a venda. Verifique os valores informados."
+      );
       return;
     }
-    
+
     const itens = produtosSelecionados.map((i) => ({
       categoria: i.categoria,
       descricaoItem: i.descricao,
@@ -231,17 +247,16 @@ function ComponenteVendas() {
       const res = await r.json();
       if (r.ok) {
         await reduzirEstoque();
-        // ALTERADO: Em vez de alert, usa mensagem flutuante
-        setMensagemFlutuante(`✅ Venda registrada com sucesso! ID: ${res.idVenda}`);
+        setMensagemFlutuante(
+          `✅ Venda registrada com sucesso! ID: ${res.idVenda}`
+        );
         resetarCaixa();
         const atualizados = await (await fetch(URL_API_PRODUTOS)).json();
         setProdutosDB(atualizados);
       } else {
-        // ALTERADO: Erro também como mensagem flutuante
         setMensagemFlutuante(`❌ Erro: ${res.mensagem}`);
       }
     } catch {
-      // ALTERADO: Erro de comunicação também como mensagem flutuante
       setMensagemFlutuante("❌ Erro de comunicação com a API.");
     }
   };
@@ -249,7 +264,6 @@ function ComponenteVendas() {
   const cancelarVenda = () => {
     if (window.confirm("Cancelar venda?")) {
       resetarCaixa();
-      // ALTERADO: Mensagem de cancelamento também flutuante
       setMensagemFlutuante("⚠️ Venda cancelada.");
     }
   };
@@ -266,8 +280,9 @@ function ComponenteVendas() {
           $descricao={item.descricao}
           $id={item.id_produto}
           $corTexto={corTextoBtn}
-          $btnClick={() => adicionarProduto(item)}
+          $btnClick={() => (adicionarProduto(item), click())}
           $produtosSelecionados={produtosSelecionados}
+          $btnHover={()=> hoverSom()}
         />
       ))
     );
@@ -277,53 +292,64 @@ function ComponenteVendas() {
 
   return (
     <div className="container">
-      
       {mensagemFlutuante && (
-    <div 
-        style={{
+        <div
+          style={{
             position: "fixed",
-            top: "20px", 
+            top: "20px",
             right: "20px",
-            
-            
-            backgroundColor: mensagemFlutuante.includes("❌") ? "#B00020" : 
-                             mensagemFlutuante.includes("⚠️") ? "#FFC107" : "#00A150", 
-            color: "white", 
-            
-            padding: "15px 20px", 
-            borderRadius: "6px", 
-            border: `1px solid ${mensagemFlutuante.includes("❌") ? "#700018" : 
-                                 mensagemFlutuante.includes("⚠️") ? "#D39E00" : "#007038"}`,
-            boxShadow: "0 4px 8px rgba(0,0,0,0.4)", 
-            
+
+            backgroundColor: mensagemFlutuante.includes("❌")
+              ? "#B00020"
+              : mensagemFlutuante.includes("⚠️")
+              ? "#FFC107"
+              : "#00A150",
+            color: "white",
+
+            padding: "15px 20px",
+            borderRadius: "6px",
+            border: `1px solid ${
+              mensagemFlutuante.includes("❌")
+                ? "#700018"
+                : mensagemFlutuante.includes("⚠️")
+                ? "#D39E00"
+                : "#007038"
+            }`,
+            boxShadow: "0 4px 8px rgba(0,0,0,0.4)",
+
             zIndex: 1000,
             fontWeight: "500",
             fontSize: "15px",
             minWidth: "250px",
             maxWidth: "350px",
-            
-            
-            
-        }}
-        className={
-            mensagemFlutuante.includes("❌") ? "toast-erro" :
-            mensagemFlutuante.includes("⚠️") ? "toast-aviso" : "toast-sucesso"
-        }
-    >
-        <div style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            gap: "10px" 
-        }}>
+          }}
+          className={
+            mensagemFlutuante.includes("❌")
+              ? "toast-erro"
+              : mensagemFlutuante.includes("⚠️")
+              ? "toast-aviso"
+              : "toast-sucesso"
+          }
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
             <span style={{ fontSize: "20px" }}>
-                {mensagemFlutuante.includes("❌") ? "❌" : 
-                 mensagemFlutuante.includes("⚠️") ? "⚠️" : "✅"}
+              {mensagemFlutuante.includes("❌")
+                ? "❌"
+                : mensagemFlutuante.includes("⚠️")
+                ? "⚠️"
+                : "✅"}
             </span>
-            <span>{mensagemFlutuante.replace(/✅|❌|⚠️/g, '').trim()}</span>
+            <span>{mensagemFlutuante.replace(/✅|❌|⚠️/g, "").trim()}</span>
+          </div>
         </div>
-    </div>
-)}
-      
+      )}
+
       <style>
         {`
           @keyframes slideInRight {
@@ -548,7 +574,7 @@ function App() {
           <Route path="/fastcash/" element={<ComponenteVendas />} />
           <Route path="/fastcash/relatorios" element={<PaginaRelatorios />} />
           <Route path="/fastcash/produtos" element={<Produtos />} />
-          <Route path="/fastcash/gerarcupom" element={<GerarCupom/>} />
+          <Route path="/fastcash/gerarcupom" element={<GerarCupom />} />
         </Routes>
       </main>
       <footer>

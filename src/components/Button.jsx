@@ -1,7 +1,6 @@
 import { useState } from "react";
 import React from "react";
 import { ButtonStyled } from "./ButtonStyled";
-import clickSound from "/sounds/selecionar.mp3";
 
 const BotaoProduto = (props) => {
     const [corPadrao, setCorPadrao] = useState("#262626");
@@ -9,35 +8,30 @@ const BotaoProduto = (props) => {
 
     const [corBotao, setCorBotao] = useState(corPadrao);
 
-    const click = () => {
-        const clickSom = new Audio(clickSound);
-        clickSom.currentTime = 0;
-        clickSom.volume = 1.0;
-        clickSom.play();
-    };
+
 
     React.useEffect(() => {
         if (props.$texto === "Impressão") {
-            setCorPadrao("#006064");
-        } else if (props.$texto === "Cópia") {
-            setCorPadrao("#0d47a1");
-        } else if (props.$texto === "Revelação") {
-            setCorPadrao("#1b5e20");
-        } else if (props.$texto === "Scan") {
-            setCorPadrao("#e65100");
-        } else if (props.$texto === "Encadernação") {
-            setCorPadrao("#4a148c");
-        } else if (props.$texto === "Apostila Color") {
-            setCorPadrao("#311b92");
-        } else if (props.$texto === "Documento") {
-            setCorPadrao("#b71c1c");
-        } else if (props.$texto === "Papelaria") {
-            setCorPadrao("#f57f17");
-        } else if (props.$texto === "Serviço") {
-            setCorPadrao("#3e2723");
-        } else {
-            setCorPadrao("#212121");
-        }
+    setCorPadrao("#004D40");
+} else if (props.$texto === "Cópia") {
+    setCorPadrao("#1A237E");
+} else if (props.$texto === "Revelação") {
+    setCorPadrao("#33691E");
+} else if (props.$texto === "Scan") {
+    setCorPadrao("#B71C1C");
+} else if (props.$texto === "Encadernação") {
+    setCorPadrao("#4A148C");
+} else if (props.$texto === "Apostila Color") {
+    setCorPadrao("#1B5E20");
+} else if (props.$texto === "Documento") {
+    setCorPadrao("#3E2723");
+} else if (props.$texto === "Papelaria") {
+    setCorPadrao("#E65100");
+} else if (props.$texto === "Serviço") {
+    setCorPadrao("#006064");
+} else {
+    setCorPadrao("#212121");
+}
     }, [props.$texto]);
 
     const estaSelecionado = props.$produtosSelecionados.some(
@@ -53,8 +47,11 @@ const BotaoProduto = (props) => {
             $background={corBotao}
             $corTexto={props.$corTexto}
             onClick={() => {
-                click();
                 props.$btnClick();
+            }}
+
+            onMouseEnter={() => {
+                props.$btnHover()
             }}
         >
             <div className="numbutton">{props.$index}</div>

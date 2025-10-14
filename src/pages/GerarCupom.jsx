@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { CupomStyled, ControlesSelecao, CupomVisualizacaoContainer, CupomFiscal } from "./CupomStyled";
+import clickSound from "/sounds/selecionar.mp3";
 
 
 const URL_API_VENDAS = "http://localhost:3000/vendas";
@@ -26,6 +27,13 @@ export const GerarCupom = () => {
     email: "",
   });
   const [exibirForm, setExibirForm] = useState(false);
+
+  const click = () => {
+      const clickSom = new Audio(clickSound);
+      clickSom.currentTime = 0;
+      clickSom.volume = 1.0;
+      clickSom.play();
+    };
 
   const buscarDadosIniciais = async () => {
     setCarregando(true);
@@ -337,7 +345,10 @@ export const GerarCupom = () => {
             Gerenciar Empresas
           </h2>
           <button
-            onClick={() => setExibirForm(true)}
+            onClick={() => {
+              setExibirForm(true)
+              
+            }}
             style={{
               padding: "8px 15px",
               backgroundColor: "#28a745",
