@@ -8,6 +8,7 @@ export const PaginaRelatorios = () => {
     const [vendas, setVendas] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState(null);
+    const [gerandoPDF, setGerandoPDF] = useState(false);
 
     const [filtroDataInicio, setFiltroDataInicio] = useState('');
     const [filtroDataFim, setFiltroDataFim] = useState('');
@@ -62,11 +63,191 @@ export const PaginaRelatorios = () => {
         return listaFiltrada;
     }, [vendas, filtroStatus, filtroDataInicio, filtroDataFim]);
 
+    // Cálculos para o subtotal
     const totalVendasBruto = useMemo(() => {
         return vendasFiltradas.reduce((acc, venda) => 
             acc + parseFloat(venda.valor_total_bruto || 0), 0
         );
     }, [vendasFiltradas]);
+
+    const totalValorPago = useMemo(() => {
+        return vendasFiltradas.reduce((acc, venda) => 
+            acc + parseFloat(venda.valor_pago_total || 0), 0
+        );
+    }, [vendasFiltradas]);
+
+    const totalTroco = useMemo(() => {
+        return vendasFiltradas.reduce((acc, venda) => 
+            acc + parseFloat(venda.valor_troco || 0), 0
+        );
+    }, [vendasFiltradas]);
+
+    const quantidadeVendas = vendasFiltradas.length;
+
+    // Função para gerar PDF simplificada
+    const gerarPDF = async () => {
+        if (vendasFiltradas.length === 0) {
+            alert('Não há dados para exportar com os filtros atuais.');
+            return;
+        }
+
+        setGerandoPDF(true);
+
+        try {
+            // Importação dinâmica para evitar problemas de carregamento
+            const { jsPDF } = await import('jspdf');
+            
+            const doc = new jsPDF();
+            
+            // Configurações iniciais
+            const pageWidth = doc.internal.pageSize.getWidth();
+            let yPosition = 20;
+
+            // Cabeçalho
+            doc.setFontSize(18);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(40, 40, 40);
+            doc.text('Relatório de Vendas - EversCash', pageWidth / 2, yPosition, { align: 'center' });
+            
+            yPosition += 10;
+
+            // Informações de filtro
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(100, 100, 100);
+            
+            let infoFiltro = 'Período: Todos os registros';
+            if (filtroDataInicio || filtroDataFim) {
+                infoFiltro = `Período: ${filtroDataInicio || 'Início'} à ${filtroDataFim || 'Fim'}`;
+            }
+            
+            if (filtroStatus !== 'Todos') {
+                infoFiltro += ` | Status: ${filtroStatus}`;
+            }
+            
+            doc.text(infoFiltro, 14, yPosition);
+            yPosition += 5;
+            doc.text(`Data de geração: ${new Date().toLocaleString('pt-BR')}`, 14, yPosition);
+            yPosition += 10;
+
+            // Cabeçalho da tabela
+            doc.setFontSize(12);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(255, 255, 255);
+            
+            // Fundo para cabeçalho
+            doc.setFillColor(41, 128, 185);
+            doc.rect(14, yPosition, pageWidth - 28, 8, 'F');
+            
+            // Texto do cabeçalho
+            doc.text('ID', 18, yPosition + 6);
+            doc.text('Data/Hora', 30, yPosition + 6);
+            doc.text('Total Bruto', 80, yPosition + 6);
+            doc.text('Valor Pago', 120, yPosition + 6);
+            doc.text('Troco', 160, yPosition + 6);
+            doc.text('Status', 180, yPosition + 6);
+            
+            yPosition += 12;
+
+            // Dados da tabela
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'normal');
+            doc.setTextColor(0, 0, 0);
+
+            let linhaCount = 0;
+            const maxLinhasPorPagina = 25;
+
+            vendasFiltradas.forEach((venda, index) => {
+                // Verificar se precisa de nova página
+                if (linhaCount >= maxLinhasPorPagina) {
+                    doc.addPage();
+                    yPosition = 20;
+                    linhaCount = 0;
+                    
+                    // Recriar cabeçalho na nova página
+                    doc.setFontSize(12);
+                    doc.setFont('helvetica', 'bold');
+                    doc.setTextColor(255, 255, 255);
+                    doc.setFillColor(41, 128, 185);
+                    doc.rect(14, yPosition, pageWidth - 28, 8, 'F');
+                    doc.text('ID', 18, yPosition + 6);
+                    doc.text('Data/Hora', 30, yPosition + 6);
+                    doc.text('Total Bruto', 80, yPosition + 6);
+                    doc.text('Valor Pago', 120, yPosition + 6);
+                    doc.text('Troco', 160, yPosition + 6);
+                    doc.text('Status', 180, yPosition + 6);
+                    yPosition += 12;
+                    doc.setFontSize(8);
+                    doc.setFont('helvetica', 'normal');
+                    doc.setTextColor(0, 0, 0);
+                }
+
+                // Alternar cores das linhas
+                if (index % 2 === 0) {
+                    doc.setFillColor(245, 245, 245);
+                    doc.rect(14, yPosition, pageWidth - 28, 6, 'F');
+                }
+
+                // Dados da linha
+                doc.text(venda.id_venda.toString(), 18, yPosition + 4);
+                doc.text(new Date(venda.data_hora).toLocaleString('pt-BR'), 30, yPosition + 4);
+                doc.text(`R$ ${parseFloat(venda.valor_total_bruto).toFixed(2)}`, 80, yPosition + 4);
+                doc.text(`R$ ${parseFloat(venda.valor_pago_total).toFixed(2)}`, 120, yPosition + 4);
+                doc.text(`R$ ${parseFloat(venda.valor_troco).toFixed(2)}`, 160, yPosition + 4);
+                doc.text(venda.status_venda, 180, yPosition + 4);
+                
+                yPosition += 6;
+                linhaCount++;
+            });
+
+            // Linha de total na última página
+            if (doc.internal.getNumberOfPages() > 1) {
+                // Ir para a última página
+                const totalPages = doc.internal.getNumberOfPages();
+                doc.setPage(totalPages);
+                yPosition = doc.internal.pageSize.getHeight() - 40;
+            }
+
+            // Fundo verde para o total
+            doc.setFillColor(46, 204, 113);
+            doc.rect(14, yPosition, pageWidth - 28, 8, 'F');
+            
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(255, 255, 255);
+            doc.text(`TOTAL (${quantidadeVendas} vendas):`, 18, yPosition + 6);
+            doc.text(`R$ ${totalVendasBruto.toFixed(2)}`, 80, yPosition + 6);
+            doc.text(`R$ ${totalValorPago.toFixed(2)}`, 120, yPosition + 6);
+            doc.text(`R$ ${totalTroco.toFixed(2)}`, 160, yPosition + 6);
+
+            yPosition += 15;
+
+            // Resumo final
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Resumo do Relatório:', 14, yPosition);
+            
+            doc.setFont('helvetica', 'normal');
+            doc.text(`• Total de Vendas: ${quantidadeVendas}`, 14, yPosition + 6);
+            doc.text(`• Valor Bruto Total: R$ ${totalVendasBruto.toFixed(2)}`, 14, yPosition + 12);
+            doc.text(`• Valor Recebido Total: R$ ${totalValorPago.toFixed(2)}`, 14, yPosition + 18);
+            doc.text(`• Troco Total: R$ ${totalTroco.toFixed(2)}`, 14, yPosition + 24);
+
+            // Gerar nome do arquivo
+            const dataAtual = new Date().toISOString().split('T')[0];
+            const nomeArquivo = `relatorio_vendas_${dataAtual}.pdf`;
+            
+            // Salvar PDF
+            doc.save(nomeArquivo);
+            
+        } catch (error) {
+            console.error('Erro ao gerar PDF:', error);
+            alert('Erro ao gerar PDF. Verifique o console para mais detalhes.');
+        } finally {
+            setGerandoPDF(false);
+        }
+    };
     
     const limparFiltros = () => {
         setFiltroDataInicio('');
@@ -188,15 +369,41 @@ export const PaginaRelatorios = () => {
     
     const SecaoResumo = (
         <div style={{ backgroundColor: '#3b3b3b', padding: '15px', marginBottom: '20px', borderRadius: '8px', fontWeight: 'bold', width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-            Total Bruto de Vendas ({vendasFiltradas.length} Registros): 
-            <span style={{ color: '#64ff8a', fontSize: '20px' }}>
-                R$ {totalVendasBruto.toFixed(2).replace('.', ',')}
-            </span>
+            <div>
+                Total de Vendas: <span style={{ color: '#64ff8a' }}>{quantidadeVendas}</span> registro(s)
+            </div>
+            <div style={{ display: 'flex', gap: '20px' }}>
+                <span>
+                    Total Bruto: <span style={{ color: '#64ff8a' }}>R$ {totalVendasBruto.toFixed(2).replace('.', ',')}</span>
+                </span>
+                <span>
+                    Total Pago: <span style={{ color: '#64ff8a' }}>R$ {totalValorPago.toFixed(2).replace('.', ',')}</span>
+                </span>
+                <span>
+                    Total Troco: <span style={{ color: '#64ff8a' }}>R$ {totalTroco.toFixed(2).replace('.', ',')}</span>
+                </span>
+            </div>
         </div>
     );
     
     const SecaoDelecao = (
         <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end', marginBottom: '20px', width: '100%' }}>
+            <button 
+                onClick={gerarPDF}
+                disabled={vendasFiltradas.length === 0 || gerandoPDF}
+                style={{ 
+                    padding: '10px 15px', 
+                    backgroundColor: '#2196F3', 
+                    color: 'white', 
+                    border: 'none', 
+                    borderRadius: '5px', 
+                    fontWeight: 'bold', 
+                    cursor: 'pointer',
+                    opacity: (vendasFiltradas.length === 0 || gerandoPDF) ? 0.6 : 1
+                }}
+            >
+                {gerandoPDF ? 'Gerando PDF...' : `Exportar PDF (${vendasFiltradas.length})`}
+            </button>
             <button 
                 onClick={deletarVendasPorFiltro}
                 disabled={vendasFiltradas.length === 0}
@@ -256,6 +463,22 @@ export const PaginaRelatorios = () => {
                                 </td>
                             </tr>
                         ))}
+                        {/* Linha de subtotal */}
+                        <tr style={{ backgroundColor: '#2d2d2d', fontWeight: 'bold', borderTop: '2px solid #64ff8a' }}>
+                            <td colSpan="2" style={{ textAlign: 'right', color: '#64ff8a' }}>
+                                SUBTOTAL ({quantidadeVendas} vendas):
+                            </td>
+                            <td style={{ color: '#64ff8a' }}>
+                                R$ {totalVendasBruto.toFixed(2).replace('.', ',')}
+                            </td>
+                            <td style={{ color: '#64ff8a' }}>
+                                R$ {totalValorPago.toFixed(2).replace('.', ',')}
+                            </td>
+                            <td style={{ color: '#64ff8a' }}>
+                                R$ {totalTroco.toFixed(2).replace('.', ',')}
+                            </td>
+                            <td colSpan="2"></td>
+                        </tr>
                     </tbody>
                 </TabelaVendas>
             )}

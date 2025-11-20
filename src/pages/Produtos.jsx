@@ -187,6 +187,32 @@ export const Produtos = () => {
         setArrastandoId(null);
     };
 
+    // Fechar modal ao pressionar ESC
+    useEffect(() => {
+        const handleEscKey = (event) => {
+            if (event.keyCode === 27 && exibirFormulario) {
+                resetarFormulario();
+            }
+        };
+        
+        document.addEventListener('keydown', handleEscKey);
+        return () => {
+            document.removeEventListener('keydown', handleEscKey);
+        };
+    }, [exibirFormulario]);
+
+    // Prevenir scroll do body quando modal estiver aberto
+    useEffect(() => {
+        if (exibirFormulario) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [exibirFormulario]);
 
     return (
         <ProdutosStyled>
@@ -207,99 +233,177 @@ export const Produtos = () => {
                 />
             </SecaoBusca>
 
-            
+            {/* Modal Fixo que fica sobre tudo */}
             {(produtoEditando || exibirFormulario) && (
-                <FormularioEdicao onSubmit={salvarProduto}>
-                    <h2>{produtoEditando ? `Editando Produto ID: ${produtoEditando.id_produto}` : 'Cadastrar Novo Produto'}</h2>
-                    
-                    <GrupoFormulario>
-                        <label htmlFor="descricao">Descrição (Nome):</label>
-                        <input
-                            id="descricao"
-                            name="descricao"
-                            type="text"
-                            value={dadosFormulario.descricao}
-                            onChange={manipularMudanca}
-                            required
-                        />
-                    </GrupoFormulario>
-                    
-                    <GrupoFormulario>
-                        <label htmlFor="categoria">Categoria:</label>
-                        <input
-                            id="categoria"
-                            name="categoria"
-                            type="text"
-                            value={dadosFormulario.categoria}
-                            onChange={manipularMudanca}
-                            required
-                        />
-                    </GrupoFormulario>
-                    
-                    <GrupoFormulario>
-                        <label htmlFor="preco">Preço (R$):</label>
-                        <input
-                            id="preco"
-                            name="preco"
-                            type="number"
-                            step="0.01"
-                            value={dadosFormulario.preco}
-                            onChange={manipularMudanca}
-                            required
-                        />
-                    </GrupoFormulario>
+                <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: '100%',
+                    backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000,
+                    overflow: 'auto'
+                }} onClick={resetarFormulario}>
+                    <div style={{
+                        backgroundColor: '#333',
+                        padding: '30px',
+                        borderRadius: '10px',
+                        width: '90%',
+                        maxWidth: '600px',
+                        maxHeight: '90vh',
+                        overflow: 'auto',
+                        position: 'relative'
+                    }} onClick={(e) => e.stopPropagation()}>
+                        <FormularioEdicao onSubmit={salvarProduto} style={{ margin: 0 }}>
+                            <div style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center', 
+                                marginBottom: '20px',
+                                borderBottom: '1px solid #555',
+                                paddingBottom: '10px'
+                            }}>
+                                <h2 style={{ margin: 0, color: '#BACBD9' }}>
+                                    {produtoEditando ? `Editando Produto ID: ${produtoEditando.id_produto}` : 'Cadastrar Novo Produto'}
+                                </h2>
+                                <button 
+                                    type="button" 
+                                    onClick={resetarFormulario}
+                                    style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        fontSize: '24px',
+                                        cursor: 'pointer',
+                                        color: '#BACBD9',
+                                        padding: '5px',
+                                        width: '30px',
+                                        height: '30px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
+                                    }}
+                                >
+                                    ×
+                                </button>
+                            </div>
+                            
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                <GrupoFormulario style={{ gridColumn: 'span 2' }}>
+                                    <label htmlFor="descricao">Descrição (Nome):</label>
+                                    <input
+                                        id="descricao"
+                                        name="descricao"
+                                        type="text"
+                                        value={dadosFormulario.descricao}
+                                        onChange={manipularMudanca}
+                                        required
+                                        autoFocus
+                                        style={{ width: '100%' }}
+                                    />
+                                </GrupoFormulario>
+                                
+                                <GrupoFormulario style={{ gridColumn: 'span 2' }}>
+                                    <label htmlFor="categoria">Categoria:</label>
+                                    <input
+                                        id="categoria"
+                                        name="categoria"
+                                        type="text"
+                                        value={dadosFormulario.categoria}
+                                        onChange={manipularMudanca}
+                                        required
+                                        style={{ width: '100%' }}
+                                    />
+                                </GrupoFormulario>
+                                
+                                <GrupoFormulario>
+                                    <label htmlFor="preco">Preço (R$):</label>
+                                    <input
+                                        id="preco"
+                                        name="preco"
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        value={dadosFormulario.preco}
+                                        onChange={manipularMudanca}
+                                        required
+                                        style={{ width: '100%' }}
+                                    />
+                                </GrupoFormulario>
 
-                    <GrupoFormulario>
-                        <label htmlFor="tipoItem">Tipo:</label>
-                        <select
-                            id="tipoItem"
-                            name="tipoItem"
-                            value={dadosFormulario.tipoItem}
-                            onChange={manipularMudanca}
-                            required
-                        >
-                            <option value="Serviço">Serviço</option>
-                            <option value="Produto">Produto</option>
-                        </select>
-                    </GrupoFormulario>
-                    
-                    {dadosFormulario.tipoItem === 'Produto' && (
-                        <>
-                            <GrupoFormulario>
-                                <label htmlFor="estoqueAtual">Estoque Atual:</label>
-                                <input
-                                    id="estoqueAtual"
-                                    name="estoqueAtual"
-                                    type="number"
-                                    value={dadosFormulario.estoqueAtual}
-                                    onChange={manipularMudanca}
-                                />
-                            </GrupoFormulario>
+                                <GrupoFormulario>
+                                    <label htmlFor="tipoItem">Tipo:</label>
+                                    <select
+                                        id="tipoItem"
+                                        name="tipoItem"
+                                        value={dadosFormulario.tipoItem}
+                                        onChange={manipularMudanca}
+                                        required
+                                        style={{ width: '100%' }}
+                                    >
+                                        <option value="Serviço">Serviço</option>
+                                        <option value="Produto">Produto</option>
+                                    </select>
+                                </GrupoFormulario>
+                                
+                                {dadosFormulario.tipoItem === 'Produto' && (
+                                    <>
+                                        <GrupoFormulario>
+                                            <label htmlFor="estoqueAtual">Estoque Atual:</label>
+                                            <input
+                                                id="estoqueAtual"
+                                                name="estoqueAtual"
+                                                type="number"
+                                                min="0"
+                                                value={dadosFormulario.estoqueAtual}
+                                                onChange={manipularMudanca}
+                                                style={{ width: '100%' }}
+                                            />
+                                        </GrupoFormulario>
 
-                            <GrupoFormulario>
-                                <label htmlFor="custoUnitario">Custo Unitário (R$):</label>
-                                <input
-                                    id="custoUnitario"
-                                    name="custoUnitario"
-                                    type="number"
-                                    step="0.01"
-                                    value={dadosFormulario.custoUnitario}
-                                    onChange={manipularMudanca}
-                                />
-                            </GrupoFormulario>
-                        </>
-                    )}
+                                        <GrupoFormulario>
+                                            <label htmlFor="custoUnitario">Custo Unitário (R$):</label>
+                                            <input
+                                                id="custoUnitario"
+                                                name="custoUnitario"
+                                                type="number"
+                                                step="0.01"
+                                                min="0"
+                                                value={dadosFormulario.custoUnitario}
+                                                onChange={manipularMudanca}
+                                                style={{ width: '100%' }}
+                                            />
+                                        </GrupoFormulario>
 
+                                        <GrupoFormulario style={{ gridColumn: 'span 2' }}>
+                                            <label htmlFor="codigoBarra">Código de Barras:</label>
+                                            <input
+                                                id="codigoBarra"
+                                                name="codigoBarra"
+                                                type="text"
+                                                value={dadosFormulario.codigoBarra}
+                                                onChange={manipularMudanca}
+                                                style={{ width: '100%' }}
+                                            />
+                                        </GrupoFormulario>
+                                    </>
+                                )}
+                            </div>
 
-                    <ContainerBotoesForm>
-                        <BotaoAcao onClick={resetarFormulario} type="button" $tipo="cancelar">
-                            CANCELAR
-                        </BotaoAcao>
-                        <BotaoAcao type="submit" $tipo="salvar">
-                            {produtoEditando ? 'SALVAR ALTERAÇÕES' : 'CADASTRAR'}
-                        </BotaoAcao>
-                    </ContainerBotoesForm>
-                </FormularioEdicao>
+                            <ContainerBotoesForm style={{ marginTop: '20px' }}>
+                                <BotaoAcao onClick={resetarFormulario} type="button" $tipo="cancelar">
+                                    CANCELAR
+                                </BotaoAcao>
+                                <BotaoAcao type="submit" $tipo="salvar">
+                                    {produtoEditando ? 'SALVAR ALTERAÇÕES' : 'CADASTRAR'}
+                                </BotaoAcao>
+                            </ContainerBotoesForm>
+                        </FormularioEdicao>
+                    </div>
+                </div>
             )}
             
             <hr style={{ margin: '30px 0', borderTop: '1px solid #444' }} />
@@ -323,7 +427,7 @@ export const Produtos = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {produtosFiltrados.map((produto) => (
+                        {produtosFiltrados.map((produto, index) => (
                             <tr 
                                 key={produto.id_produto}
                                 draggable
@@ -331,9 +435,13 @@ export const Produtos = () => {
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={(e) => handleDrop(e, produto.id_produto)}
-                                style={{ opacity: arrastandoId === produto.id_produto ? 0.5 : 1, cursor: 'grab' }}
+                                style={{ 
+                                    opacity: arrastandoId === produto.id_produto ? 0.5 : 1, 
+                                    cursor: 'grab',
+                                    backgroundColor: produtoEditando?.id_produto === produto.id_produto ? '#2a4d69' : 'transparent'
+                                }}
                             >
-                                <td>{produtos.findIndex(p => p.id_produto === produto.id_produto) + 1}</td>
+                                <td>{index + 1}</td>
                                 <td>{produto.id_produto}</td>
                                 <td>{produto.descricao}</td>
                                 <td>{produto.categoria}</td>

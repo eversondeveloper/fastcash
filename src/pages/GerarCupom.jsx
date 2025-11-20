@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { CupomStyled, ControlesSelecao, CupomVisualizacaoContainer, CupomFiscal } from "./CupomStyled";
 import clickSound from "/sounds/selecionar.mp3";
 
-
 const URL_API_VENDAS = "http://localhost:3000/vendas";
 const URL_API_EMPRESAS = "http://localhost:3000/empresas";
 
@@ -27,6 +26,7 @@ export const GerarCupom = () => {
     email: "",
   });
   const [exibirForm, setExibirForm] = useState(false);
+  const [gerandoPDF, setGerandoPDF] = useState(false);
 
   const click = () => {
       const clickSom = new Audio(clickSound);
@@ -157,7 +157,7 @@ export const GerarCupom = () => {
 
     try {
       const resposta = await fetch(`${URL_API_EMPRESAS}/${idEmpresa}`, {
-        method: "DELETE", // DELETE logic on the server must remove the company
+        method: "DELETE",
       });
 
       if (!resposta.ok) throw new Error("Falha ao deletar empresa.");
@@ -166,6 +166,154 @@ export const GerarCupom = () => {
       buscarDadosIniciais();
     } catch (error) {
       alert(`Erro ao deletar: ${error.message}`);
+    }
+  };
+
+  // Função para gerar PDF do cupom
+  const gerarPDFCupom = async () => {
+    if (!empresaSelecionada || !detalhesVenda) {
+      alert("Selecione uma empresa e uma venda para gerar o cupom.");
+      return;
+    }
+
+    setGerandoPDF(true);
+
+    try {
+      const { jsPDF } = await import('jspdf');
+      
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: [80, 200] // Tamanho padrão de cupom fiscal
+      });
+
+      const empresa = empresaSelecionada;
+      const venda = detalhesVenda;
+      const pageWidth = doc.internal.pageSize.getWidth();
+      let yPosition = 10;
+
+      // Configurações de fonte
+      doc.setFont('helvetica');
+      doc.setFontSize(8);
+
+      // Cabeçalho da empresa
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(empresa.nome_fantasia || empresa.razao_social, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 5;
+
+      doc.setFontSize(6);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`CNPJ: ${empresa.cnpj} | IE: ${empresa.inscricao_estadual}`, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 4;
+
+      doc.text(empresa.endereco || '', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 3;
+      doc.text(`${empresa.cidade || ''}/${empresa.estado || ''}`, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 3;
+      doc.text(`Tel: ${empresa.telefone || ''}`, pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 8;
+
+      // Linha divisória
+      doc.setLineWidth(0.5);
+      doc.line(5, yPosition, pageWidth - 5, yPosition);
+      yPosition += 5;
+
+      // Informações do cupom
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Comprovante de Vendas', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 4;
+
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Venda ID: ${venda.id_venda}`, 10, yPosition);
+      yPosition += 4;
+      doc.text(`Data: ${new Date(venda.data_hora).toLocaleString('pt-BR')}`, 10, yPosition);
+      yPosition += 8;
+
+      // Linha divisória
+      doc.line(5, yPosition, pageWidth - 5, yPosition);
+      yPosition += 5;
+
+      // Cabeçalho da tabela de itens
+      doc.setFont('helvetica', 'bold');
+      doc.text('ITEM', 10, yPosition);
+      doc.text('QTD', 45, yPosition);
+      doc.text('VALOR', 60, yPosition);
+      yPosition += 4;
+
+      doc.line(5, yPosition, pageWidth - 5, yPosition);
+      yPosition += 5;
+
+      // Itens da venda
+      doc.setFont('helvetica', 'normal');
+      venda.itens?.forEach((item, index) => {
+        // Quebra de linha para descrição longa
+        const descricao = item.descricao_item;
+        const descricaoLinhas = doc.splitTextToSize(descricao, 30);
+        
+        descricaoLinhas.forEach((linha, linhaIndex) => {
+          if (linhaIndex === 0) {
+            doc.text(linha, 10, yPosition);
+          } else {
+            doc.text(linha, 12, yPosition);
+          }
+          yPosition += 3;
+        });
+
+        doc.text(item.quantidade.toString(), 45, yPosition - (descricaoLinhas.length * 3) + 3);
+        doc.text(`R$ ${formatarMoeda(item.preco_unitario)}`, 52, yPosition - (descricaoLinhas.length * 3) + 3);
+        doc.text(`R$ ${formatarMoeda(item.subtotal)}`, 65, yPosition - (descricaoLinhas.length * 3) + 3);
+        
+        yPosition += 2;
+      });
+
+      // Linha divisória antes dos totais
+      yPosition += 3;
+      doc.line(5, yPosition, pageWidth - 5, yPosition);
+      yPosition += 5;
+
+      // Totais
+      doc.setFont('helvetica', 'bold');
+      doc.text(`TOTAL BRUTO: R$ ${formatarMoeda(venda.valor_total_bruto)}`, 10, yPosition);
+      yPosition += 4;
+
+      // Formas de pagamento
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      venda.pagamentos?.forEach((pag, index) => {
+        doc.text(`${pag.metodo}: R$ ${formatarMoeda(pag.valor_pago)}`, 10, yPosition);
+        yPosition += 3;
+      });
+
+      // Troco
+      if (parseFloat(venda.valor_troco) > 0) {
+        doc.text(`TROCO: R$ ${formatarMoeda(venda.valor_troco)}`, 10, yPosition);
+        yPosition += 4;
+      }
+
+      // Rodapé
+      yPosition += 5;
+      doc.line(5, yPosition, pageWidth - 5, yPosition);
+      yPosition += 8;
+
+      doc.setFontSize(6);
+      doc.text('*** OBRIGADO PELA PREFERÊNCIA ***', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 3;
+      doc.text('Volte Sempre!', pageWidth / 2, yPosition, { align: 'center' });
+
+      // Gerar nome do arquivo
+      const dataHora = new Date().toISOString().replace(/[:.]/g, '-');
+      const nomeArquivo = `cupom_venda_${venda.id_venda}_${dataHora}.pdf`;
+
+      // Salvar PDF
+      doc.save(nomeArquivo);
+
+    } catch (error) {
+      console.error('Erro ao gerar PDF do cupom:', error);
+      alert('Erro ao gerar PDF. Tente novamente.');
+    } finally {
+      setGerandoPDF(false);
     }
   };
 
@@ -189,7 +337,7 @@ export const GerarCupom = () => {
     if (!empresaSelecionada || !detalhesVenda) {
       return (
         <div style={{ textAlign: "center", padding: "20px" }}>
-          Selecione uma **Empresa** e uma **Venda** para gerar o cupom.
+          Selecione uma <strong>Empresa</strong> e uma <strong>Venda</strong> para gerar o cupom.
         </div>
       );
     }
@@ -207,8 +355,30 @@ export const GerarCupom = () => {
           color: "#000",
           width: "300px",
           margin: "20px auto",
+          position: "relative",
         }}
       >
+        {/* Botão de exportar PDF */}
+        <button
+          onClick={gerarPDFCupom}
+          disabled={gerandoPDF}
+          style={{
+            position: "absolute",
+            top: "10px",
+            right: "10px",
+            padding: "5px 10px",
+            backgroundColor: "#2196F3",
+            color: "white",
+            border: "none",
+            borderRadius: "3px",
+            fontSize: "10px",
+            cursor: "pointer",
+            opacity: gerandoPDF ? 0.6 : 1
+          }}
+        >
+          {gerandoPDF ? "Gerando..." : "📄 PDF"}
+        </button>
+
         <h3 style={{ textAlign: "center", marginBottom: "5px" }}>
           {empresa.nome_fantasia || empresa.razao_social}
         </h3>
@@ -238,7 +408,7 @@ export const GerarCupom = () => {
           }}
         >
           <p style={{ fontSize: "12px" }}>
-            CUPOM FISCAL - VENDA ID: {venda.id_venda}
+            COMPROVANTE - VENDA ID: {venda.id_venda}
           </p>
           <p style={{ fontSize: "12px" }}>
             Data: {new Date(venda.data_hora).toLocaleString("pt-BR")}
@@ -315,11 +485,8 @@ export const GerarCupom = () => {
 
   return (
     <CupomStyled>
-      <h1
-        style={{ color: "#BACBD9", textAlign: "center", marginBottom: "20px"
-         }}
-      >
-        Geração de Cupom Fiscal
+      <h1 style={{ color: "#BACBD9", textAlign: "center", marginBottom: "20px" }}>
+        Geração de Comprovante
       </h1>
 
       <div
@@ -346,8 +513,8 @@ export const GerarCupom = () => {
           </h2>
           <button
             onClick={() => {
-              setExibirForm(true)
-              
+              setExibirForm(true);
+              click();
             }}
             style={{
               padding: "8px 15px",

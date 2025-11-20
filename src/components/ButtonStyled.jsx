@@ -28,16 +28,16 @@ export const ButtonStyled = styled.div`
   text-align: center;
   text-transform: uppercase;
   border: solid 2px #2a2a2a;
-
-  width: 24.7%;
+  width: 32%;
   aspect-ratio: 1 / 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
+  flex-direction: column;
   position: relative;
   user-select: none;
   transition: all 0.2s ease-out;
+  margin-bottom: 2%;
 
   &:hover {
     transform: scale(1.02);

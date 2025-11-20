@@ -3,10 +3,11 @@ import styled from "styled-components";
 export const AppStyled = styled.div`
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 
   header {
     width: 100%;
-    height: 10%;
+    height: 6%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -21,10 +22,11 @@ export const AppStyled = styled.div`
   
   .logo{
     text-transform: uppercase;
-    font-size: 24px;
+    font-size: 17px;
     text-transform: uppercase;
     font-weight: bold;
     text-decoration: none;
+    color: #ff9500;
   }
 
   .menu-links{
@@ -34,13 +36,13 @@ export const AppStyled = styled.div`
   }
   
   .menu-links a {
-    font-size: 18px;
+    font-size: 15px;
     text-decoration: none;
   }
 
   main {
     width: 100vw;
-    height: 80%;
+    height: 88%;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -70,7 +72,7 @@ export const AppStyled = styled.div`
   }
   .buttons2 {
     display: flex;
-    gap: 2px;
+    gap: 2%;
     padding: 10px;
     box-sizing: border-box;
     flex-wrap: wrap;
@@ -79,6 +81,17 @@ export const AppStyled = styled.div`
     overflow: visible;
     border-radius: 10px;
     width: 100%;
+  }
+  
+  .buttons-catalogo{
+    width: 100%;
+    display: flex;
+    gap: 2%; 
+    padding: 10px;
+    box-sizing: border-box;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    justify-content: start;
   }
 
   .controles {
@@ -95,7 +108,7 @@ export const AppStyled = styled.div`
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
     border-radius: 10px;
     position: relative;
-    overflow: auto;
+    overflow: hidden;
   }
 
   h1 {
@@ -111,22 +124,21 @@ export const AppStyled = styled.div`
 
   .prods {
     width: 100%;
-    min-height: 60%;
+    height: 40%;
     padding: 5px;
     box-sizing: border-box;
     border-bottom: solid 1px #3b3b3b;
+    overflow-y: auto;
   }
 
   .relacaoprodutos {
     width: 100%;
-    height: 60px;
+    height: 40px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-start;
-    border-bottom: solid 1px #3b3b3b;
     margin-bottom: 5px;
-    border-bottom: solid 1px #3b3b3b;
   }
 
   .quantidade {
@@ -144,12 +156,10 @@ export const AppStyled = styled.div`
   }
 
   .pagamento {
-    height: 35%;
+    height: 60%;
     width: 100%;
-    bottom: 10px;
-    left: 0;
-    padding: 10px;
-  }
+    padding-top: 10px;
+    }
 
   .metodos-pagamento-container {
     display: flex;
@@ -160,7 +170,7 @@ export const AppStyled = styled.div`
 
   .metodo-btn {
     flex-grow: 1;
-    padding: 10px 5px;
+    padding: 5px 5px;
     background-color: #3b3b3b; /* Cor de fundo padrão (não selecionado) */
     color: #bacbd9;
     border: none;
@@ -309,7 +319,7 @@ export const AppStyled = styled.div`
 
   footer {
     width: 100%;
-    height: 10%;
+    height: 6%;
     display: flex;
     align-items: center;
     justify-content: center;
