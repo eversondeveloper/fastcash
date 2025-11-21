@@ -49,7 +49,6 @@ export const AppStyled = styled.div`
   }
   
   .container {
-    border: solid;
     width: 90%;
     height: 100%;
     display: flex;
