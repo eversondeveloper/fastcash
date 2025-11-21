@@ -47,11 +47,13 @@ export const AppStyled = styled.div`
     align-items: center;
     justify-content: center;
   }
-
+  
   .container {
+    border: solid;
     width: 90%;
     height: 100%;
     display: flex;
+    justify-content: space-between;
   }
 
   .buttons {
@@ -124,7 +126,7 @@ export const AppStyled = styled.div`
 
   .prods {
     width: 100%;
-    height: 40%;
+    height: 25%;
     padding: 5px;
     box-sizing: border-box;
     border-bottom: solid 1px #3b3b3b;
@@ -156,7 +158,7 @@ export const AppStyled = styled.div`
   }
 
   .pagamento {
-    height: 60%;
+    height: 75%;
     width: 100%;
     padding-top: 10px;
     }
