@@ -28,6 +28,7 @@ function ComponenteVendas() {
   const [carregandoProdutos, setCarregandoProdutos] = useState(true);
   const [corTextoBtn] = useState("#cecece");
   const [mensagemFlutuante, setMensagemFlutuante] = useState("");
+  const [nomeEmpresa, setNomeEmpresa] = useState("Yakov Letreiros e Comunicação visual");
 
   // Novos Estados para Filtragem
   const [filtroCategoriasSelecionadas, setFiltroCategoriasSelecionadas] = useState([]);
@@ -545,8 +546,9 @@ function ComponenteVendas() {
       </div>
 
       <div className="controles">
-        <h1>Selecionados:</h1>
+        
         <div className="prods">
+          <h1>Selecionados:</h1>
           {produtosSelecionados.map((produto) => {
             const valorItem = parseFloat(produto.preco) || 0;
             const totalDoItem = valorItem * produto.quantidade;
@@ -718,6 +720,9 @@ function ComponenteVendas() {
 }
 
 function App() {
+  const URL_API_EMPRESAS = "http://localhost:3000/empresas";
+  const [nomeEmpresa, setNomeEmpresa] = useState("Yakov Letreiros e Comunicação visual");
+
   return (
     <AppStyled>
       <header>
@@ -725,6 +730,9 @@ function App() {
           <Link to="/fastcash/" className="logo">
             EversCash
           </Link>
+          <div className="nomeempresa">
+            {nomeEmpresa}
+          </div>
           <div className="menu-links">
             <Link to="/fastcash/">Ponto de Vendas</Link>
             <Link to="/fastcash/relatorios">Relatório de Vendas</Link>

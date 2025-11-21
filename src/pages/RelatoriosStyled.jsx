@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const RelatoriosStyled = styled.div`
-    width: 90%;
+    width: 98%;
     height: 100%;
     margin: 20px auto;
     padding: 20px;

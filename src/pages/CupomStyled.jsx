@@ -7,7 +7,7 @@ export const CupomStyled = styled.div`
   border-radius: 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8);
   color: #f0f0f0;
-  width: 90%;
+  width: 98%;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -20,7 +20,6 @@ export const CupomStyled = styled.div`
     margin-bottom: 30px;
     text-align: center;
     font-weight: 600;
-    text-transform: uppercase;
   }
 `;
 

@@ -14,7 +14,7 @@ export const AppStyled = styled.div`
   }
 
   .logomenu {
-    width: 90%;
+    width: 98%;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -49,14 +49,14 @@ export const AppStyled = styled.div`
   }
   
   .container {
-    width: 90%;
+    width: 98%;
     height: 100%;
     display: flex;
     justify-content: space-between;
   }
 
   .buttons {
-    width: 58%;
+    width: 49.5%;
     height: 100%;
     display: flex;
     gap: 2%;
@@ -96,14 +96,13 @@ export const AppStyled = styled.div`
   }
 
   .controles {
-    width: 40%;
+    width: 49.5%;
     height: 100%;
     border: solid 1px #3b3b3b;
     margin-left: 10px;
     padding: 10px;
     box-sizing: border-box;
     display: flex;
-    flex-direction: column;
     align-items: center;
     justify-content: space-between;
     box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
@@ -124,8 +123,8 @@ export const AppStyled = styled.div`
   }
 
   .prods {
-    width: 100%;
-    height: 25%;
+    width: 49%;
+    height: 100%;
     padding: 5px;
     box-sizing: border-box;
     border-bottom: solid 1px #3b3b3b;
@@ -134,12 +133,14 @@ export const AppStyled = styled.div`
 
   .relacaoprodutos {
     width: 100%;
-    height: 40px;
+    height: auto;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: flex-start;
-    margin-bottom: 5px;
+    margin-bottom: 15px;
+    border-bottom: #3b3b3b 1px solid;
+    padding: 5px;
   }
 
   .quantidade {
@@ -157,10 +158,10 @@ export const AppStyled = styled.div`
   }
 
   .pagamento {
-    height: 75%;
-    width: 100%;
+    height: 100%;
+    width: 49%;
     padding-top: 10px;
-    }
+  }
 
   .metodos-pagamento-container {
     display: flex;
