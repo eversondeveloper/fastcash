@@ -1,11 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { AppStyled } from "./AppStyled";
 import Button from "./components/Button";
-// Importações de som comentadas para evitar erros de compilação em ambientes restritos.
-// import desClick from "/sounds/desselecionar.mp3"; 
-// import clickSound from "/sounds/selecionar.mp3";
-// import somHover from "/sounds/hover.mp3"
-
 import { Routes, Route, Link } from "react-router-dom";
 import { PaginaRelatorios } from "./pages/PaginaRelatorios";
 import { Produtos } from "./pages/Produtos";
@@ -13,6 +8,7 @@ import { GerarCupom } from "./pages/GerarCupom";
 
 const URL_API_VENDAS = "http://localhost:3000/vendas";
 const URL_API_PRODUTOS = "http://localhost:3000/produtos";
+
 
 const ComponenteConfiguracoes = () => (
   <h1>Página de Configurações do Sistema</h1>
@@ -28,18 +24,15 @@ function ComponenteVendas() {
   const [carregandoProdutos, setCarregandoProdutos] = useState(true);
   const [corTextoBtn] = useState("#cecece");
   const [mensagemFlutuante, setMensagemFlutuante] = useState("");
-  const [nomeEmpresa, setNomeEmpresa] = useState("Yakov Letreiros e Comunicação visual");
 
-  // Novos Estados para Filtragem
-  const [filtroCategoriasSelecionadas, setFiltroCategoriasSelecionadas] = useState([]);
-  const [filtroTipoItem, setFiltroTipoItem] = useState('Todos'); // 'Todos', 'Produto', 'Serviço'
-  const [filtroBusca, setFiltroBusca] = useState('');
+  const [filtroCategoriasSelecionadas, setFiltroCategoriasSelecionadas] =
+    useState([]);
+  const [filtroTipoItem, setFiltroTipoItem] = useState("Todos");
+  const [filtroBusca, setFiltroBusca] = useState("");
 
-  // --- Funções de Áudio (uso desabilitado para garantir compilação) ---
-  const click = () => { /* Implementação de áudio desabilitada temporariamente */ };
-  const desClickSound = () => { /* Implementação de áudio desabilitada temporariamente */ };
-  
-  // --- Lógica de Inicialização e Efeitos ---
+  const click = () => {};
+  const desClickSound = () => {};
+
   useEffect(() => {
     const buscarProdutos = async () => {
       try {
@@ -48,7 +41,9 @@ function ComponenteVendas() {
         const dados = await resposta.json();
         setProdutosDB(dados);
       } catch {
-        setMensagemFlutuante("❌ Erro ao carregar o catálogo de produtos da API.");
+        setMensagemFlutuante(
+          "❌ Erro ao carregar o catálogo de produtos da API."
+        );
       } finally {
         setCarregandoProdutos(false);
       }
@@ -66,61 +61,52 @@ function ComponenteVendas() {
     }
   }, [mensagemFlutuante]);
 
-  // --- Lógica de Filtragem e Listas Derivadas ---
-
-  // 1. Categorias Únicas para os botões de filtro
   const categoriasUnicas = useMemo(() => {
     if (!produtosDB || produtosDB.length === 0) return [];
-    // Filtra apenas categorias e retorna uma lista única e ordenada
-    return [...new Set(produtosDB.map(p => p.categoria))].sort();
+    return [...new Set(produtosDB.map((p) => p.categoria))].sort();
   }, [produtosDB]);
 
-  // 2. Lógica de Filtragem Múltipla
   const produtosFiltrados = useMemo(() => {
     let lista = produtosDB;
     const termoBusca = filtroBusca.toLowerCase().trim();
 
-    // 1. Filtrar por Categoria (OR logic: se 1 ou mais categorias selecionadas, filtra)
     if (filtroCategoriasSelecionadas.length > 0) {
-      lista = lista.filter(p => filtroCategoriasSelecionadas.includes(p.categoria));
+      lista = lista.filter((p) =>
+        filtroCategoriasSelecionadas.includes(p.categoria)
+      );
     }
 
-    // 2. Filtrar por Tipo de Item (Produto ou Serviço)
-    if (filtroTipoItem !== 'Todos') {
-      lista = lista.filter(p => p.tipo_item === filtroTipoItem);
+    if (filtroTipoItem !== "Todos") {
+      lista = lista.filter((p) => p.tipo_item === filtroTipoItem);
     }
 
-    // 3. Filtrar por Busca (Descricao, Categoria, ID)
     if (termoBusca) {
-      lista = lista.filter(p => 
-        p.descricao.toLowerCase().includes(termoBusca) ||
-        p.categoria.toLowerCase().includes(termoBusca) ||
-        p.id_produto.toString().includes(termoBusca)
+      lista = lista.filter(
+        (p) =>
+          p.descricao.toLowerCase().includes(termoBusca) ||
+          p.categoria.toLowerCase().includes(termoBusca) ||
+          p.id_produto.toString().includes(termoBusca)
       );
     }
 
     return lista;
   }, [produtosDB, filtroCategoriasSelecionadas, filtroTipoItem, filtroBusca]);
 
-  // Função para alternar a seleção de categorias
   const toggleCategoriaFiltro = (categoria) => {
-    setFiltroCategoriasSelecionadas(prev => {
+    setFiltroCategoriasSelecionadas((prev) => {
       if (prev.includes(categoria)) {
-        return prev.filter(c => c !== categoria);
+        return prev.filter((c) => c !== categoria);
       } else {
         return [...prev, categoria];
       }
     });
   };
-  
-  // Função para limpar todos os filtros
+
   const limparFiltros = () => {
     setFiltroCategoriasSelecionadas([]);
-    setFiltroTipoItem('Todos');
-    setFiltroBusca('');
+    setFiltroTipoItem("Todos");
+    setFiltroBusca("");
   };
-
-  // --- Lógica de Vendas ---
 
   const adicionarProduto = (item) => {
     const produtoExistente = produtosSelecionados.find(
@@ -139,7 +125,9 @@ function ComponenteVendas() {
       produtoOriginal.tipo_item === "Produto" &&
       produtoOriginal.estoque_atual <= quantidadeAtual
     ) {
-      return setMensagemFlutuante("⚠️ Estoque insuficiente para adicionar mais unidades.");
+      return setMensagemFlutuante(
+        "⚠️ Estoque insuficiente para adicionar mais unidades."
+      );
     }
 
     if (produtoExistente) {
@@ -176,8 +164,8 @@ function ComponenteVendas() {
     setProdutosSelecionados((prev) => {
       const item = prev.find((p) => p.idUnico === idUnico);
       const original = produtosDB.find((p) => p.id_produto === item.id_produto);
-      
-      if (!item || !original) return prev; // Proteção contra dados inconsistentes
+
+      if (!item || !original) return prev;
 
       if (
         original.tipo_item === "Produto" &&
@@ -192,20 +180,20 @@ function ComponenteVendas() {
     });
   };
 
-  // --- Cálculos Derivados ---
   const totalGeral = produtosSelecionados.reduce(
     (acc, p) => acc + parseFloat(p.preco || 0) * p.quantidade,
     0
   );
   const valorPagoTotal = valorDinheiroRecebido + valorOutroMetodo;
   const valorFaltando =
-    totalGeral > valorPagoTotal ? totalGeral - valorPagoTotal : 0;
+    metodoPagamento === "Dinheiro" || metodoPagamento === "Misto"
+      ? Math.max(0, totalGeral - valorPagoTotal)
+      : 0;
   let valorTroco = 0;
   if (metodoPagamento === "Dinheiro" && valorDinheiroRecebido > totalGeral)
     valorTroco = valorDinheiroRecebido - totalGeral;
   else if (metodoPagamento === "Misto" && valorPagoTotal > totalGeral)
     valorTroco = valorPagoTotal - totalGeral;
-  // --- Fim Cálculos ---
 
   const podeFinalizarVenda = () => {
     if (produtosSelecionados.length === 0) return false;
@@ -252,68 +240,89 @@ function ComponenteVendas() {
 
   const finalizarVenda = async () => {
     if (!podeFinalizarVenda()) {
-      setMensagemFlutuante(
-        "❌ Não é possível finalizar a venda. Verifique os valores informados."
-      );
-      return;
+        setMensagemFlutuante(
+            "❌ Não é possível finalizar a venda. Verifique os valores informados."
+        );
+        return;
     }
 
-    const itens = produtosSelecionados.map((i) => ({
-      categoria: i.categoria,
-      descricaoItem: i.descricao,
-      precoUnitario: i.preco,
-      quantidade: i.quantidade,
-      subtotal: parseFloat(i.preco) * i.quantidade,
-    }));
+    // 🆕 CRIAR ARRAY DE PAGAMENTOS CORRETAMENTE
     const pagamentos = [];
-    if (metodoPagamento === "Dinheiro")
-      pagamentos.push({
-        metodo: "Dinheiro",
-        valorPago: totalGeral - valorTroco,
-      });
+    
+    if (metodoPagamento === "Dinheiro") {
+        pagamentos.push({
+            metodo: "Dinheiro",
+            valorPago: totalGeral,
+            referenciaMetodo: null
+        });
+    }
     else if (metodoPagamento === "Misto") {
-      if (valorDinheiroRecebido > 0)
+        // Pagamento em Dinheiro
+        if (valorDinheiroRecebido > 0) {
+            pagamentos.push({
+                metodo: "Dinheiro", 
+                valorPago: valorDinheiroRecebido,
+                referenciaMetodo: null
+            });
+        }
+        // Pagamento no método secundário
+        if (valorOutroMetodo > 0) {
+            pagamentos.push({
+                metodo: metodoSecundario,
+                valorPago: valorOutroMetodo, 
+                referenciaMetodo: null
+            });
+        }
+    }
+    else {
+        // Crédito, Débito, PIX
         pagamentos.push({
-          metodo: "Dinheiro",
-          valorPago: valorDinheiroRecebido - valorTroco,
+            metodo: metodoPagamento,
+            valorPago: totalGeral,
+            referenciaMetodo: null
         });
-      if (valorOutroMetodo > 0)
-        pagamentos.push({
-          metodo: metodoSecundario,
-          valorPago: valorOutroMetodo,
-        });
-    } else pagamentos.push({ metodo: metodoPagamento, valorPago: totalGeral });
+    }
 
     const venda = {
-      valorTotalBruto: totalGeral,
-      valorPagoTotal,
-      valorTroco,
-      statusVenda: "Finalizada",
-      itens,
-      pagamentos,
+        valorTotalBruto: totalGeral,
+        valorPagoTotal: ["Crédito", "Débito", "PIX"].includes(metodoPagamento)
+            ? totalGeral
+            : valorPagoTotal,
+        valorTroco,
+        statusVenda: "Finalizada",
+        itens: produtosSelecionados.map((i) => ({
+            categoria: i.categoria,
+            descricaoItem: i.descricao,
+            precoUnitario: i.preco,
+            quantidade: i.quantidade,
+            subtotal: parseFloat(i.preco) * i.quantidade,
+        })),
+        // 🆕 AGORA COM PAGAMENTOS - ESTE É O CAMPO CRÍTICO
+        pagamentos: pagamentos
     };
+
     try {
-      const r = await fetch(URL_API_VENDAS, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(venda),
-      });
-      const res = await r.json();
-      if (r.ok) {
-        await reduzirEstoque();
-        setMensagemFlutuante(
-          `✅ Venda registrada com sucesso! ID: ${res.idVenda}`
-        );
-        resetarCaixa();
-        const atualizados = await (await fetch(URL_API_PRODUTOS)).json();
-        setProdutosDB(atualizados);
-      } else {
-        setMensagemFlutuante(`❌ Erro: ${res.mensagem}`);
-      }
+        const r = await fetch(URL_API_VENDAS, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(venda),
+        });
+        const res = await r.json();
+        if (r.ok) {
+            await reduzirEstoque();
+            setMensagemFlutuante(
+                `✅ Venda registrada com sucesso! ID: ${res.idVenda}`
+            );
+            resetarCaixa();
+            const atualizados = await (await fetch(URL_API_PRODUTOS)).json();
+            setProdutosDB(atualizados);
+        } else {
+            setMensagemFlutuante(`❌ Erro: ${res.mensagem}`);
+        }
     } catch {
-      setMensagemFlutuante("❌ Erro de comunicação com a API.");
+        setMensagemFlutuante("❌ Erro de comunicação com a API.");
     }
-  };
+};
 
   const cancelarVenda = () => {
     if (window.confirm("Cancelar venda?")) {
@@ -322,12 +331,13 @@ function ComponenteVendas() {
     }
   };
 
-  // --- Renderização dos Botões de Produto (agora usa produtosFiltrados) ---
   const precosFunc = () =>
     carregandoProdutos ? (
       <p className="mensagem-carregando">Carregando catálogo...</p>
     ) : produtosFiltrados.length === 0 ? (
-      <p className="mensagem-sem-produtos">Nenhum produto encontrado com os filtros aplicados.</p>
+      <p className="mensagem-sem-produtos">
+        Nenhum produto encontrado com os filtros aplicados.
+      </p>
     ) : (
       <div className="buttons-catalogo">
         {produtosFiltrados.map((item, i) => (
@@ -351,20 +361,17 @@ function ComponenteVendas() {
   return (
     <div className="container">
       {mensagemFlutuante && (
-        // Conteúdo do Toast Flutuante (mantido o estilo inline por ser auxiliar)
         <div
           style={{
             position: "fixed",
             top: "20px",
             right: "20px",
-
             backgroundColor: mensagemFlutuante.includes("❌")
               ? "#B00020"
               : mensagemFlutuante.includes("⚠️")
               ? "#FFC107"
               : "#00A150",
             color: "white",
-
             padding: "15px 20px",
             borderRadius: "6px",
             border: `1px solid ${
@@ -375,7 +382,6 @@ function ComponenteVendas() {
                 : "#007038"
             }`,
             boxShadow: "0 4px 8px rgba(0,0,0,0.4)",
-
             zIndex: 1000,
             fontWeight: "500",
             fontSize: "15px",
@@ -433,7 +439,6 @@ function ComponenteVendas() {
             }
           }
           
-          /* Estilos básicos para os filtros (placeholder) */
           .container-filtros-pdv {
             display: flex;
             flex-direction: column;
@@ -457,10 +462,10 @@ function ComponenteVendas() {
             cursor: pointer;
             border-radius: 4px;
             transition: background-color 0.2s;
-            white-space: nowrap; /* Evita quebra de linha nos botões de filtro */
+            white-space: nowrap;
           }
           .botao-filtro-categoria.selecionado, .botao-filtro-tipo.selecionado {
-            background-color: #4CAF50; /* Verde de seleção */
+            background-color: #4CAF50;
             border-color: #388E3C;
             color: white;
           }
@@ -476,77 +481,95 @@ function ComponenteVendas() {
             margin-left: auto;
           }
 
-          /* O container onde os botões de produto são renderizados */
           .buttons2 {
             overflow-y: auto;
-            flex-grow: 1; /* Permite que ocupe o espaço disponível */
+            flex-grow: 1;
             padding: 10px 0;
           }
           .buttons-catalogo {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 10px;
-            padding-right: 15px; /* Espaço para a barra de rolagem */
+            padding-right: 15px;
           }
         `}
       </style>
 
       <div className="buttons">
-        {/* --- Container de Filtros --- */}
         <div className="container-filtros-pdv">
-            
-            <h3 style={{ color: '#BACBD9', fontSize: '16px', margin: 0 }}>Filtrar Catálogo</h3>
-            
-            <input
-              type="text"
-              placeholder="Buscar por nome, categoria ou código..."
-              className="input-filtro-busca"
-              value={filtroBusca}
-              onChange={(e) => setFiltroBusca(e.target.value)}
-            />
+          <h3 style={{ color: "#BACBD9", fontSize: "16px", margin: 0 }}>
+            Filtrar Catálogo
+          </h3>
 
-            <div className="filtros-categoria">
-                <label style={{ color: '#BACBD9', marginRight: '5px', fontWeight: 'bold' }}>Categorias:</label>
-              {categoriasUnicas.map(cat => (
-                <button
-                  key={cat}
-                  className={`botao-filtro-categoria ${filtroCategoriasSelecionadas.includes(cat) ? 'selecionado' : ''}`}
-                  onClick={() => toggleCategoriaFiltro(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
-            </div>
+          <input
+            type="text"
+            placeholder="Buscar por nome, categoria ou código..."
+            className="input-filtro-busca"
+            value={filtroBusca}
+            onChange={(e) => setFiltroBusca(e.target.value)}
+          />
 
-            <div className="filtros-tipo-item">
-              <label style={{ color: '#BACBD9', marginRight: '5px', fontWeight: 'bold' }}>Tipo:</label>
-              {['Todos', 'Produto', 'Serviço'].map(tipo => (
-                <button
-                  key={tipo}
-                  className={`botao-filtro-tipo ${filtroTipoItem === tipo ? 'selecionado' : ''}`}
-                  onClick={() => setFiltroTipoItem(tipo)}
-                >
-                  {tipo}
-                </button>
-              ))}
-              
-              {(filtroCategoriasSelecionadas.length > 0 || filtroTipoItem !== 'Todos' || filtroBusca) && (
-                <button 
-                  className="botao-limpar-filtros"
-                  onClick={limparFiltros}
-                >
-                  Limpar Filtros
-                </button>
-              )}
-            </div>
+          <div className="filtros-categoria">
+            <label
+              style={{
+                color: "#BACBD9",
+                marginRight: "5px",
+                fontWeight: "bold",
+              }}
+            >
+              Categorias:
+            </label>
+            {categoriasUnicas.map((cat) => (
+              <button
+                key={cat}
+                className={`botao-filtro-categoria ${
+                  filtroCategoriasSelecionadas.includes(cat)
+                    ? "selecionado"
+                    : ""
+                }`}
+                onClick={() => toggleCategoriaFiltro(cat)}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
+          <div className="filtros-tipo-item">
+            <label
+              style={{
+                color: "#BACBD9",
+                marginRight: "5px",
+                fontWeight: "bold",
+              }}
+            >
+              Tipo:
+            </label>
+            {["Todos", "Produto", "Serviço"].map((tipo) => (
+              <button
+                key={tipo}
+                className={`botao-filtro-tipo ${
+                  filtroTipoItem === tipo ? "selecionado" : ""
+                }`}
+                onClick={() => setFiltroTipoItem(tipo)}
+              >
+                {tipo}
+              </button>
+            ))}
+
+            {(filtroCategoriasSelecionadas.length > 0 ||
+              filtroTipoItem !== "Todos" ||
+              filtroBusca) && (
+              <button className="botao-limpar-filtros" onClick={limparFiltros}>
+                Limpar Filtros
+              </button>
+            )}
+          </div>
         </div>
-        {/* --- Fim Container de Filtros --- */}
 
         <div className="buttons2">{precosFunc()}</div>
       </div>
 
       <div className="controles">
-        
         <div className="prods">
           <h1>Selecionados:</h1>
           {produtosSelecionados.map((produto) => {
@@ -721,7 +744,24 @@ function ComponenteVendas() {
 
 function App() {
   const URL_API_EMPRESAS = "http://localhost:3000/empresas";
-  const [nomeEmpresa, setNomeEmpresa] = useState("Yakov Letreiros e Comunicação visual");
+  const [empresas, setEmpresas] = useState([]);
+  const [empresaSelecionada, setEmpresaSelecionada] = useState(null);
+
+  useEffect(() => {
+  const buscarEmpresas = async () => {
+    try {
+      const resposta = await fetch(URL_API_EMPRESAS);
+      const dados = await resposta.json();
+      setEmpresas(dados);
+      if (dados.length > 0) {
+        setEmpresaSelecionada(dados[0]); // Seleciona a primeira empresa por padrão
+      }
+    } catch (error) {
+      console.error("Erro ao carregar empresas:", error);
+    }
+  };
+  buscarEmpresas();
+}, []);
 
   return (
     <AppStyled>
@@ -731,8 +771,28 @@ function App() {
             EversCash
           </Link>
           <div className="nomeempresa">
-            {nomeEmpresa}
-          </div>
+  <select 
+    value={empresaSelecionada?.id_empresa || ""} 
+    onChange={(e) => {
+      const empresa = empresas.find(emp => emp.id_empresa === parseInt(e.target.value));
+      setEmpresaSelecionada(empresa);
+    }}
+    style={{
+      background: 'transparent',
+      border: 'none',
+      color: '#BACBD9',
+      fontSize: '16px',
+      fontWeight: 'bold',
+      cursor: 'pointer'
+    }}
+  >
+    {empresas.map(empresa => (
+      <option key={empresa.id_empresa} value={empresa.id_empresa}>
+        {empresa.nome_fantasia || empresa.razao_social}
+      </option>
+    ))}
+  </select>
+</div>
           <div className="menu-links">
             <Link to="/fastcash/">Ponto de Vendas</Link>
             <Link to="/fastcash/relatorios">Relatório de Vendas</Link>
@@ -744,9 +804,9 @@ function App() {
       <main>
         <Routes>
           <Route path="/fastcash/" element={<ComponenteVendas />} />
-          <Route path="/fastcash/relatorios" element={<PaginaRelatorios />} />
-          <Route path="/fastcash/produtos" element={<Produtos />} />
-          <Route path="/fastcash/gerarcupom" element={<GerarCupom />} />
+          <Route path="/fastcash/relatorios" element={<PaginaRelatorios empresaSelecionada={empresaSelecionada} />} />
+          <Route path="/fastcash/produtos" element={<Produtos $empresaSelecionada={empresaSelecionada} />} />
+          <Route path="/fastcash/gerarcupom" element={<GerarCupom empresaSelecionada={empresaSelecionada} />} />
         </Routes>
       </main>
       <footer>
