@@ -1,0 +1,259 @@
+import { useState, useRef, useCallback, useEffect } from "react";
+import { useGerarOrcamento } from "../hooks/useGerarOrcamento";
+import somCancelar from "/sounds/efeitos/desselecionar.mp3";
+import { ProdutosSelecionadosStyled } from "./ProdutosSelecionadosStyled";
+
+const ProdutosSelecionados = ({
+  produtosSelecionados,
+  removerProduto,
+  handleQuantidadeChange,
+  totalGeral,
+  dadosEmpresa,
+  somClick,
+  somClickMenos,
+}) => {
+  const { gerarOrcamentoPDF, gerandoOrcamento } = useGerarOrcamento();
+  const [mostrarModalOrcamento, setMostrarModalOrcamento] = useState(false);
+  const [dadosCliente, setDadosCliente] = useState({
+    nome: "", email: "", telefone: "", observacoes: "",
+  });
+
+  const [valorTemp, setValorTemp] = useState({});
+  const somCancelaRef = useRef(new Audio(somCancelar));
+  const listaRef = useRef(null);
+
+  // Auto-scroll para o último item adicionado
+  useEffect(() => {
+    if (listaRef.current) {
+      listaRef.current.scrollTop = listaRef.current.scrollHeight;
+    }
+  }, [produtosSelecionados.length]);
+
+  const somCancel = () => {
+    somCancelaRef.current.volume = 1.0;
+    somCancelaRef.current.currentTime = 0;
+    somCancelaRef.current.play().catch(() => {});
+  };
+
+  const confirmarGerarOrcamento = async () => {
+    try {
+      await gerarOrcamentoPDF({
+        produtosSelecionados,
+        totalGeral,
+        nomeCliente: dadosCliente.nome,
+        emailCliente: dadosCliente.email,
+        telefoneCliente: dadosCliente.telefone,
+        observacoes: dadosCliente.observacoes,
+        dadosEmpresa: dadosEmpresa,
+      });
+      setMostrarModalOrcamento(false);
+      setDadosCliente({ nome: "", email: "", telefone: "", observacoes: "" });
+    } catch (error) {
+      console.error("Erro ao gerar orçamento:", error);
+    }
+  };
+
+  const handleAjusteQuantidade = useCallback(
+    (idUnico, delta) => {
+      const produto = produtosSelecionados.find((p) => p.idUnico === idUnico);
+      if (!produto) return;
+      const atual = parseFloat(produto.quantidade) || 0;
+      const novaQuantidade = Math.max(0, atual + delta);
+      
+      if (novaQuantidade > 0) {
+        handleQuantidadeChange(idUnico, novaQuantidade);
+      } else {
+        somCancel();
+        removerProduto(idUnico);
+      }
+    },
+    [produtosSelecionados, handleQuantidadeChange, removerProduto]
+  );
+
+  /**
+   * Lógica Inteligente de Quantidade:
+   * Se a quantidade atual for 1 (valor inicial padrão), o botão substitui o valor.
+   * Se a quantidade for diferente de 1, o botão soma ao valor existente.
+   */
+  const handleAjusteInteligente = useCallback(
+    (idUnico, valorBotao) => {
+      const produto = produtosSelecionados.find((p) => p.idUnico === idUnico);
+      if (!produto) return;
+
+      const quantidadeAtual = parseFloat(produto.quantidade) || 0;
+      
+      if (quantidadeAtual === 1) {
+        // Primeiro clique após adicionar: substitui o 1 inicial
+        handleQuantidadeChange(idUnico, valorBotao);
+      } else {
+        // Cliques subsequentes: soma ao valor que já está lá
+        handleQuantidadeChange(idUnico, quantidadeAtual + valorBotao);
+      }
+    },
+    [produtosSelecionados, handleQuantidadeChange]
+  );
+
+  const totalFormatado = parseFloat(totalGeral || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+
+  return (
+    <ProdutosSelecionadosStyled>
+      <div className="cabecalho-carrinho">
+        <div className="titulo-grupo">
+          <h2>CARRINHO</h2>
+          <button 
+            className="btn-limpar-carrinho" 
+            onClick={() => window.confirm("Esvaziar carrinho?") && produtosSelecionados.forEach(p => removerProduto(p.idUnico))}
+            title="Limpar tudo"
+          >
+            LIMPAR
+          </button>
+        </div>
+        <span className="contador-itens">{produtosSelecionados.length} ITENS</span>
+      </div>
+
+      <div className="lista-produtos-carrinho" ref={listaRef}>
+        {produtosSelecionados.length === 0 ? (
+          <div className="carrinho-vazio-mensagem">
+            <div className="icone-vazio">🛒</div>
+            <p>Seu carrinho está vazio</p>
+          </div>
+        ) : (
+          produtosSelecionados.map((produto) => {
+            const valorItem = parseFloat(produto.preco) || 0;
+            const totalDoItem = valorItem * produto.quantidade;
+            const valorParaExibir = valorTemp[produto.idUnico] ?? produto.quantidade.toString().replace(".", ",");
+
+            return (
+              <div className="card-produto-selecionado" key={produto.idUnico}>
+                <div className="info-produto-topo">
+                  <div className="textos-produto">
+                    <span className="categoria-label">{produto.categoria}</span>
+                    <h4 className="descricao-titulo">{produto.descricao.toUpperCase()}</h4>
+                  </div>
+                  <button 
+                    type="button"
+                    className="btn-remover-item" 
+                    onClick={() => { somCancel(); removerProduto(produto.idUnico); }}
+                    title="Remover item"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="controles-produto-baixo">
+                  <div className="secao-quantidade-completa">
+                    <div className="pill-seletor-quantidade">
+                      <button type="button" onClick={() => { handleAjusteQuantidade(produto.idUnico, -1); somClickMenos(); }}>-</button>
+                      <input
+                        type="text"
+                        className="input-quantidade-campo"
+                        value={valorParaExibir}
+                        onFocus={() => setValorTemp({ ...valorTemp, [produto.idUnico]: "" })}
+                        onBlur={() => {
+                          const n = { ...valorTemp };
+                          delete n[produto.idUnico];
+                          setValorTemp(n);
+                        }}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          setValorTemp({ ...valorTemp, [produto.idUnico]: val });
+                          const processado = val.replace(",", ".");
+                          if (processado !== "" && !isNaN(processado)) handleQuantidadeChange(produto.idUnico, processado);
+                        }}
+                      />
+                      <button type="button" onClick={() => { handleAjusteQuantidade(produto.idUnico, 1); somClick(); }}>+</button>
+                    </div>
+                    
+                    {/* Atalhos de quantidade inteligente (Substitui se 1, Soma se > 1) */}
+                    <div className="atalhos-quantidade">
+                      <button type="button" onClick={() => { handleAjusteInteligente(produto.idUnico, 5); somClick(); }}>5</button>
+                      <button type="button" onClick={() => { handleAjusteInteligente(produto.idUnico, 10); somClick(); }}>10</button>
+                      <button type="button" onClick={() => { handleAjusteInteligente(produto.idUnico, 50); somClick(); }}>50</button>
+                    </div>
+                  </div>
+                  
+                  <div className="precos-item-container">
+                    <span className="unitario-label">Un: R$ {valorItem.toFixed(2)}</span>
+                    <strong className="subtotal-item">R$ {totalDoItem.toFixed(2).replace(".", ",")}</strong>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {produtosSelecionados.length > 0 && (
+        <div className="rodape-carrinho">
+          <div className="linha-total-geral">
+            <span>TOTAL</span>
+            <strong>{totalFormatado}</strong>
+          </div>
+          <button
+            type="button"
+            className="btn-acao-orcamento"
+            onClick={() => setMostrarModalOrcamento(true)}
+            disabled={gerandoOrcamento}
+          >
+            {gerandoOrcamento ? "PROCESSANDO..." : "GERAR ORÇAMENTO [F4]"}
+          </button>
+        </div>
+      )}
+
+      {mostrarModalOrcamento && (
+        <div className="modal-overlay-moderno" onClick={(e) => e.target.className === 'modal-overlay-moderno' && setMostrarModalOrcamento(false)}>
+          <div className="modal-conteudo-moderno">
+            <div className="modal-cabecalho-moderno">
+              <div className="titulo-modal">
+                <span className="icone-modal">📄</span>
+                <h3>DADOS DO ORÇAMENTO</h3>
+              </div>
+              <button className="btn-fechar-x" onClick={() => setMostrarModalOrcamento(false)}>✕</button>
+            </div>
+            <div className="modal-corpo-moderno">
+              <div className="grid-campos">
+                <div className="campo-entrada">
+                  <label>NOME DO CLIENTE</label>
+                  <input 
+                    type="text" 
+                    placeholder="Ex: João Silva" 
+                    value={dadosCliente.nome} 
+                    onChange={(e) => setDadosCliente({...dadosCliente, nome: e.target.value})} 
+                    onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+                    autoFocus
+                  />
+                </div>
+                <div className="campo-entrada">
+                  <label>TELEFONE / WHATSAPP</label>
+                  <input 
+                    type="text" 
+                    placeholder="(00) 00000-0000" 
+                    value={dadosCliente.telefone} 
+                    onChange={(e) => setDadosCliente({...dadosCliente, telefone: e.target.value})} 
+                    onKeyDown={(e) => e.key === "Enter" && e.target.blur()}
+                  />
+                </div>
+              </div>
+              <div className="resumo-total-modal">
+                <div className="info-total">
+                  <span>TOTAL ESTIMADO:</span>
+                  <strong>{totalFormatado}</strong>
+                </div>
+                <p className="dica-validade">Válido por 30 dias após a emissão</p>
+              </div>
+            </div>
+            <div className="modal-rodape-moderno">
+              <button className="btn-voltar-modal" onClick={() => setMostrarModalOrcamento(false)}>VOLTAR [ESC]</button>
+              <button className="btn-confirmar-pdf" onClick={confirmarGerarOrcamento}>GERAR PDF</button>
+            </div>
+          </div>
+        </div>
+      )}
+    </ProdutosSelecionadosStyled>
+  );
+};
+
+export default ProdutosSelecionados;
